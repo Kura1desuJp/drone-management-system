@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+
+{% block title %}Дашборд | Система управління дронами{% endblock %}
+
+{% block content %}
+<div class="page-title">
+    <h1><i class="fas fa-chart-line"></i> Дашборд системи управління дронами</h1>
+    <p class="lead" style="color: rgba(255,255,255,0.9);">Статистика та огляд ключових показників</p>
+</div>
+
+<!-- Статистика -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card active">
+            <i class="fas fa-robot stat-icon"></i>
+            <div class="stat-number" id="total-drones">{{ total_drones }}</div>
+            <div class="stat-label">Всього дронів</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card active">
+            <i class="fas fa-check-circle stat-icon" style="color: #51cf66;"></i>
+            <div class="stat-number" style="color: #51cf66;">{{ active_drones }}</div>
+            <div class="stat-label">Активні дрони</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card repair">
+            <i class="fas fa-wrench stat-icon" style="color: #ff6b6b;"></i>
+            <div class="stat-number" style="color: #ff6b6b;">{{ repair_drones }}</div>
+            <div class="stat-label">На ремонті</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card storage">
+            <i class="fas fa-box stat-icon" style="color: #ffa94d;"></i>
+            <div class="stat-number" style="color: #ffa94d;">{{ storage_drones }}</div>
+            <div class="stat-label">На зберіганні</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Графік годин льоту -->
+    <div class="col-lg-6 mb-4">
+        <div class="content-card">
+            <h3 class="card-title">
+                <i class="fas fa-chart-bar"></i> Години льоту по дронам
+            </h3>
+            <div class="chart-container">
+                <canvas id="flightHoursChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Статус дронів -->
+    <div class="col-lg-6 mb-4">
+        <div class="content-card">
+            <h3 class="card-title">
+                <i class="fas fa-chart-pie"></i> Розподіл за статусом
+            </h3>
+            <div class="chart-container">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Таблиця дронів -->
+    <div class="col-lg-8 mb-4">
+        <div class="content-card">
+            <h3 class="card-title">
+                <i class="fas fa-list"></i> Список дронів
+            </h3>
+            {% if drones %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Модель</th>
+                            <th>Серійний номер</th>
+                            <th>Статус</th>
+                            <th>Години льоту</th>
+                            <th>Власник</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for drone in drones %}
+                        <tr>
+                            <td>
+                                <strong>{{ drone.model_name }}</strong>
+                            </td>
+                            <td>
+                                <code>{{ drone.serial_number }}</code>
+                            </td>
+                            <td>
+                                {% if drone.status == 'active' %}
+                                    <span class="badge-active">Активний</span>
+                                {% elif drone.status == 'repair' %}
+                                    <span class="badge-repair">На ремонті</span>
+                                {% elif drone.status == 'storage' %}
+                                    <span class="badge-storage">На зберіганні</span>
+                                {% else %}
+                                    <span class="badge" style="background: #6c757d;">{{ drone.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ drone.hours_flown|floatformat:1 }}</strong> год
+                            </td>
+                            <td>{{ drone.owner.first_name }} {{ drone.owner.last_name }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>Немає дронів у системі</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Останні роботи обслуговування -->
+    <div class="col-lg-4 mb-4">
+        <div class="content-card">
+            <h3 class="card-title">
+                <i class="fas fa-tools"></i> Останні роботи
+            </h3>
+            {% if maintenance_records %}
+                {% for maintenance in maintenance_records %}
+                <div class="maintenance-item {% if maintenance.status == 'completed' %}completed{% elif maintenance.status == 'in_progress' %}in-progress{% endif %}">
+                    <div class="maintenance-type">
+                        {{ maintenance.get_maintenance_type_display }}
+                    </div>
+                    <div class="maintenance-desc">
+                        <strong>{{ maintenance.drone.serial_number }}</strong>
+                        <br>
+                        {{ maintenance.description|truncatewords:10 }}
+                    </div>
+                    <div class="maintenance-date">
+                        <i class="fas fa-calendar"></i>
+                        {{ maintenance.scheduled_date|date:"d.m.Y" }}
+                    </div>
+                    <div style="margin-top: 8px;">
+                        {% if maintenance.status == 'completed' %}
+                            <span class="badge-completed">Завершено</span>
+                        {% elif maintenance.status == 'in_progress' %}
+                            <span class="badge-in-progress">У процесі</span>
+                        {% else %}
+                            <span class="badge-scheduled">Заплановано</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="empty-state" style="padding: 20px;">
+                <i class="fas fa-inbox"></i>
+                <p>Немає робіт обслуговування</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Огляди та діагностика -->
+<div class="row">
+    <div class="col-lg-12 mb-4">
+        <div class="content-card">
+            <h3 class="card-title">
+                <i class="fas fa-stethoscope"></i> Останні огляди та діагностика
+            </h3>
+            {% if inspections %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Дрон</th>
+                            <th>Інспектор</th>
+                            <th>Дата огляду</th>
+                            <th>Батарея</th>
+                            <th>Мотори</th>
+                            <th>Камера</th>
+                            <th>Результат</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inspection in inspections %}
+                        <tr>
+                            <td>
+                                <strong>{{ inspection.drone.serial_number }}</strong>
+                            </td>
+                            <td>{{ inspection.inspector_name }}</td>
+                            <td>{{ inspection.inspection_date|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: {{ inspection.battery_health }}%; background: {% if inspection.battery_health > 80 %}#51cf66{% elif inspection.battery_health > 50 %}#ffa94d{% else %}#ff6b6b{% endif %};"
+                                         aria-valuenow="{{ inspection.battery_health }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ inspection.battery_health }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if inspection.motor_status == 'ok' %}
+                                    <span style="color: #51cf66;"><i class="fas fa-check-circle"></i> OK</span>
+                                {% elif inspection.motor_status == 'warning' %}
+                                    <span style="color: #ffa94d;"><i class="fas fa-exclamation-circle"></i> Попередження</span>
+                                {% else %}
+                                    <span style="color: #ff6b6b;"><i class="fas fa-times-circle"></i> Несправний</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if inspection.camera_status == 'ok' %}
+                                    <span style="color: #51cf66;"><i class="fas fa-check-circle"></i> OK</span>
+                                {% elif inspection.camera_status == 'warning' %}
+                                    <span style="color: #ffa94d;"><i class="fas fa-exclamation-circle"></i> Попередження</span>
+                                {% else %}
+                                    <span style="color: #ff6b6b;"><i class="fas fa-times-circle"></i> Несправна</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if inspection.result == 'passed' %}
+                                    <span class="badge-completed">Пройшов</span>
+                                {% elif inspection.result == 'warning' %}
+                                    <span class="badge-in-progress">Попередження</span>
+                                {% else %}
+                                    <span class="badge-repair">Не пройшов</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>Немає оглядів у системі</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Швидкі посилання -->
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="quick-links">
+            <a href="/admin/" class="quick-link-btn" target="_blank">
+                <i class="fas fa-cog"></i> Адміністрація
+            </a>
+            <a href="/api/drones/drones/" class="quick-link-btn" target="_blank">
+                <i class="fas fa-cube"></i> API дронів
+            </a>
+            <a href="/api/drones/maintenance/" class="quick-link-btn" target="_blank">
+                <i class="fas fa-tools"></i> API обслуговування
+            </a>
+            <a href="/api/drones/inspections/" class="quick-link-btn" target="_blank">
+                <i class="fas fa-stethoscope"></i> API оглядів
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Дані для графіків
+    const dronesData = {
+        labels: [{% for drone in drones %}'{{ drone.serial_number }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        hours: [{% for drone in drones %}{{ drone.hours_flown|floatformat:1 }}{% if not forloop.last %},{% endif %}{% endfor %}],
+        statuses: {
+            active: {{ active_drones }},
+            repair: {{ repair_drones }},
+            storage: {{ storage_drones }}
+        }
+    };
+
+    // Графік годин льоту
+    const flightCtx = document.getElementById('flightHoursChart').getContext('2d');
+    new Chart(flightCtx, {
+        type: 'bar',
+        data: {
+            labels: dronesData.labels,
+            datasets: [{
+                label: 'Години льоту',
+                data: dronesData.hours,
+                backgroundColor: [
+                    'rgba(102, 126, 234, 0.8)',
+                    'rgba(118, 75, 162, 0.8)',
+                    'rgba(81, 207, 102, 0.8)',
+                    'rgba(255, 107, 107, 0.8)',
+                    'rgba(255, 169, 77, 0.8)'
+                ],
+                borderColor: [
+                    'rgb(102, 126, 234)',
+                    'rgb(118, 75, 162)',
+                    'rgb(81, 207, 102)',
+                    'rgb(255, 107, 107)',
+                    'rgb(255, 169, 77)'
+                ],
+                borderWidth: 2,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        font: { size: 14, weight: 'bold' }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { font: { size: 12 } }
+                }
+            }
+        }
+    });
+
+    // Графік статусу
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Активні', 'На ремонті', 'На зберіганні'],
+            datasets: [{
+                data: [
+                    dronesData.statuses.active,
+                    dronesData.statuses.repair,
+                    dronesData.statuses.storage
+                ],
+                backgroundColor: [
+                    'rgba(81, 207, 102, 0.8)',
+                    'rgba(255, 107, 107, 0.8)',
+                    'rgba(255, 169, 77, 0.8)'
+                ],
+                borderColor: [
+                    'rgb(81, 207, 102)',
+                    'rgb(255, 107, 107)',
+                    'rgb(255, 169, 77)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: { size: 14, weight: 'bold' },
+                        padding: 15
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

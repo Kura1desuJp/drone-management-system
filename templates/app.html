@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DroneControl - Система управління дронами</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+        }
+        
+        .sidebar {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .nav-item:hover {
+            background: rgba(148, 163, 184, 0.1);
+            transform: translateX(4px);
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            color: white;
+        }
+        
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            border-color: rgba(148, 163, 184, 0.2);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.1);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .stat-card.active {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1));
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .stat-card.repair {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .btn {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border: none;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .table-row:hover {
+            background: rgba(148, 163, 184, 0.05);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-active {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+        
+        .badge-repair {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .badge-storage {
+            background: rgba(249, 115, 22, 0.2);
+            color: #f97316;
+        }
+        
+        .input-field {
+            background: rgba(71, 85, 105, 0.3);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            background: rgba(71, 85, 105, 0.5);
+            border-color: rgba(59, 130, 246, 0.5);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(148, 163, 184, 0.2);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-900">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="sidebar w-64 overflow-y-auto">
+            <div class="p-6 border-b border-slate-700">
+                <h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+                    <i class="fas fa-drone"></i> DroneControl
+                </h1>
+                <p class="text-xs text-slate-400 mt-1">Система управління дронами</p>
+            </div>
+            
+            <nav class="p-4 space-y-2">
+                <div class="nav-item active px-4 py-3 rounded-lg" onclick="showPage('dashboard')">
+                    <i class="fas fa-chart-line w-5"></i>
+                    <span class="ml-3">Дашборд</span>
+                </div>
+                <div class="nav-item px-4 py-3 rounded-lg" onclick="showPage('drones')">
+                    <i class="fas fa-robot w-5"></i>
+                    <span class="ml-3">Дрони</span>
+                </div>
+                <div class="nav-item px-4 py-3 rounded-lg" onclick="showPage('maintenance')">
+                    <i class="fas fa-tools w-5"></i>
+                    <span class="ml-3">Обслуговування</span>
+                </div>
+                <div class="nav-item px-4 py-3 rounded-lg" onclick="showPage('inspections')">
+                    <i class="fas fa-stethoscope w-5"></i>
+                    <span class="ml-3">Огляди</span>
+                </div>
+                <div class="nav-item px-4 py-3 rounded-lg" onclick="showPage('reports')">
+                    <i class="fas fa-file-pdf w-5"></i>
+                    <span class="ml-3">Звіти</span>
+                </div>
+                <div class="nav-item px-4 py-3 rounded-lg" onclick="showPage('admin')">
+                    <i class="fas fa-user-shield w-5"></i>
+                    <span class="ml-3">Адміністрування</span>
+                </div>
+            </nav>
+            
+            <div class="p-4 border-t border-slate-700 mt-auto">
+                <div class="text-sm text-slate-400">
+                    <p class="mb-2"><i class="fas fa-user"></i> Поточний користувач</p>
+                    <p class="font-semibold">{{ user.first_name }} {{ user.last_name }}</p>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="header px-8 py-4">
+                <div class="flex justify-between items-center">
+                    <h1 id="page-title" class="text-3xl font-bold">Дашборд</h1>
+                    <div class="flex items-center gap-4">
+                        <button class="btn btn-primary px-4 py-2 rounded-lg text-sm" id="add-btn" style="display: none;">
+                            <i class="fas fa-plus"></i> Додати
+                        </button>
+                        <a href="/admin/" target="_blank" class="text-slate-400 hover:text-white transition">
+                            <i class="fas fa-cog text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Content Area -->
+            <div class="flex-1 overflow-y-auto">
+                <div class="p-8">
+                    <!-- Dashboard Page -->
+                    <div id="page-dashboard" class="fade-in">
+                        <!-- Статистика -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                            <div class="stat-card card p-6 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-slate-400 text-sm">Всього дронів</p>
+                                        <p class="text-3xl font-bold mt-2" id="total-drones">0</p>
+                                    </div>
+                                    <i class="fas fa-robot text-3xl opacity-20"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card active card p-6 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-slate-400 text-sm">Активні</p>
+                                        <p class="text-3xl font-bold mt-2 text-green-400" id="active-drones">0</p>
+                                    </div>
+                                    <i class="fas fa-check-circle text-3xl opacity-20"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card repair card p-6 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-slate-400 text-sm">На ремонті</p>
+                                        <p class="text-3xl font-bold mt-2 text-red-400" id="repair-drones">0</p>
+                                    </div>
+                                    <i class="fas fa-wrench text-3xl opacity-20"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="stat-card card p-6 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-slate-400 text-sm">На зберіганні</p>
+                                        <p class="text-3xl font-bold mt-2 text-orange-400" id="storage-drones">0</p>
+                                    </div>
+                                    <i class="fas fa-box text-3xl opacity-20"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Графіки -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                            <div class="card p-6 rounded-lg">
+                                <h3 class="text-lg font-semibold mb-4">Години льоту</h3>
+                                <canvas id="flight-chart"></canvas>
+                            </div>
+                            <div class="card p-6 rounded-lg">
+                                <h3 class="text-lg font-semibold mb-4">Розподіл за статусом</h3>
+                                <canvas id="status-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Дрони Page -->
+                    <div id="page-drones" style="display: none;" class="fade-in">
+                        <div class="card p-6 rounded-lg">
+                            <h2 class="text-2xl font-bold mb-6">Список дронів</h2>
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="border-b border-slate-700">
+                                        <tr>
+                                            <th class="text-left py-3 px-4">Модель</th>
+                                            <th class="text-left py-3 px-4">Серійний номер</th>
+                                            <th class="text-left py-3 px-4">Статус</th>
+                                            <th class="text-left py-3 px-4">Години льоту</th>
+                                            <th class="text-left py-3 px-4">Власник</th>
+                                            <th class="text-left py-3 px-4">Дії</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="drones-table">
+                                        <tr class="table-row">
+                                            <td colspan="6" class="text-center py-8 text-slate-400">
+                                                <div class="loading mx-auto"></div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Обслуговування Page -->
+                    <div id="page-maintenance" style="display: none;" class="fade-in">
+                        <div class="card p-6 rounded-lg">
+                            <h2 class="text-2xl font-bold mb-6">Обслуговування</h2>
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="border-b border-slate-700">
+                                        <tr>
+                                            <th class="text-left py-3 px-4">Дрон</th>
+                                            <th class="text-left py-3 px-4">Тип</th>
+                                            <th class="text-left py-3 px-4">Статус</th>
+                                            <th class="text-left py-3 px-4">Дата</th>
+                                            <th class="text-left py-3 px-4">Вартість</th>
+                                            <th class="text-left py-3 px-4">Дії</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="maintenance-table">
+                                        <tr class="table-row">
+                                            <td colspan="5" class="text-center py-8 text-slate-400">
+                                                <div class="loading mx-auto"></div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Огляди Page -->
+                    <div id="page-inspections" style="display: none;" class="fade-in">
+                        <div class="card p-6 rounded-lg">
+                            <h2 class="text-2xl font-bold mb-6">Огляди та діагностика</h2>
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="border-b border-slate-700">
+                                        <tr>
+                                            <th class="text-left py-3 px-4">Дрон</th>
+                                            <th class="text-left py-3 px-4">Інспектор</th>
+                                            <th class="text-left py-3 px-4">Батарея</th>
+                                            <th class="text-left py-3 px-4">Мотори</th>
+                                            <th class="text-left py-3 px-4">Результат</th>
+                                            <th class="text-left py-3 px-4">Дії</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="inspections-table">
+                                        <tr class="table-row">
+                                            <td colspan="5" class="text-center py-8 text-slate-400">
+                                                <div class="loading mx-auto"></div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Звіти Page -->
+                    <div id="page-reports" style="display: none;" class="fade-in">
+                        <div class="card p-6 rounded-lg">
+                            <h2 class="text-2xl font-bold mb-6">Генерування звітів</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <button class="btn btn-primary px-6 py-3 rounded-lg font-semibold" onclick="generateReport('drones')">
+                                    <i class="fas fa-file-csv"></i> Звіт по дронам
+                                </button>
+                                <button class="btn btn-primary px-6 py-3 rounded-lg font-semibold" onclick="generateReport('maintenance')">
+                                    <i class="fas fa-file-csv"></i> Звіт по обслуговуванню
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Адміністрування Page -->
+                    <div id="page-admin" style="display: none;" class="fade-in">
+                        <!-- Користувачі -->
+                        <div class="card p-6 rounded-lg mb-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 class="text-2xl font-bold">Користувачі</h2>
+                                <button class="btn btn-primary px-4 py-2 rounded-lg" onclick="openAddUserModal()">
+                                    <i class="fas fa-plus"></i> Новий користувач
+                                </button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="border-b border-slate-700">
+                                        <tr>
+                                            <th class="text-left py-3 px-4">Ім'я користувача</th>
+                                            <th class="text-left py-3 px-4">Email</th>
+                                            <th class="text-left py-3 px-4">Статус</th>
+                                            <th class="text-left py-3 px-4">Групи</th>
+                                            <th class="text-left py-3 px-4">Дії</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="users-table">
+                                        <tr class="table-row">
+                                            <td colspan="5" class="text-center py-8 text-slate-400">
+                                                <div class="loading mx-auto"></div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Групи/Ролі -->
+                        <div class="card p-6 rounded-lg">
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 class="text-2xl font-bold">Групи/Ролі</h2>
+                                <button class="btn btn-primary px-4 py-2 rounded-lg" onclick="openAddGroupModal()">
+                                    <i class="fas fa-plus"></i> Нова група
+                                </button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="border-b border-slate-700">
+                                        <tr>
+                                            <th class="text-left py-3 px-4">Назва групи</th>
+                                            <th class="text-left py-3 px-4">Дії</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="groups-table">
+                                        <tr class="table-row">
+                                            <td colspan="2" class="text-center py-8 text-slate-400">
+                                                <div class="loading mx-auto"></div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modal для редагування -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold" id="modal-title">Редагування</h2>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="edit-form" onsubmit="saveItem(event)">
+                <div id="form-fields"></div>
+                <div class="flex gap-4 mt-6">
+                    <button type="submit" class="btn btn-primary flex-1 py-2 rounded-lg font-semibold">Зберегти</button>
+                    <button type="button" onclick="closeModal()" class="btn flex-1 py-2 rounded-lg font-semibold bg-slate-700 hover:bg-slate-600">Скасувати</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/drones';
+        let currentPage = 'dashboard';
+        let chartInstances = {};
+        let editingId = null;
+        let editingType = null;
+        
+        // Show/Hide Pages з AJAX
+        function showPage(page) {
+            document.querySelectorAll('[id^="page-"]').forEach(el => {
+                el.style.display = 'none';
+            });
+            document.getElementById(`page-${page}`).style.display = 'block';
+            
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
+            
+            currentPage = page;
+            
+            const titles = {
+                dashboard: 'Дашборд',
+                drones: 'Дрони',
+                maintenance: 'Обслуговування',
+                inspections: 'Огляди та діагностика',
+                reports: 'Звіти'
+            };
+            document.getElementById('page-title').textContent = titles[page];
+            
+            const addBtn = document.getElementById('add-btn');
+            addBtn.style.display = ['drones', 'maintenance', 'inspections'].includes(page) ? 'block' : 'none';
+            addBtn.onclick = () => openAddModal(page);
+            
+            if (page === 'dashboard') loadDashboard();
+            else if (page === 'drones') loadDrones();
+            else if (page === 'maintenance') loadMaintenance();
+            else if (page === 'inspections') loadInspections();
+        }
+        
+        // Load Dashboard
+        async function loadDashboard() {
+            try {
+                const response = await fetch(`${API_BASE}/drones/?limit=100`);
+                const data = await response.json();
+                const drones = data.results;
+                
+                const stats = {
+                    total: drones.length,
+                    active: drones.filter(d => d.status === 'active').length,
+                    repair: drones.filter(d => d.status === 'repair').length,
+                    storage: drones.filter(d => d.status === 'storage').length
+                };
+                
+                document.getElementById('total-drones').textContent = stats.total;
+                document.getElementById('active-drones').textContent = stats.active;
+                document.getElementById('repair-drones').textContent = stats.repair;
+                document.getElementById('storage-drones').textContent = stats.storage;
+                
+                updateCharts(drones, stats);
+            } catch (error) {
+                showNotification('Помилка завантаження дашборду', 'error');
+            }
+        }
+        
+        // Update Charts
+        function updateCharts(drones, stats) {
+            const flightCtx = document.getElementById('flight-chart');
+            if (chartInstances.flight) chartInstances.flight.destroy();
+            
+            chartInstances.flight = new Chart(flightCtx, {
+                type: 'bar',
+                data: {
+                    labels: drones.map(d => d.serial_number),
+                    datasets: [{
+                        label: 'Години льоту',
+                        data: drones.map(d => d.hours_flown),
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#e2e8f0' } } },
+                    scales: {
+                        y: { ticks: { color: '#e2e8f0' } },
+                        x: { ticks: { color: '#e2e8f0' } }
+                    }
+                }
+            });
+            
+            const statusCtx = document.getElementById('status-chart');
+            if (chartInstances.status) chartInstances.status.destroy();
+            
+            chartInstances.status = new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Активні', 'На ремонті', 'На зберіганні'],
+                    datasets: [{
+                        data: [stats.active, stats.repair, stats.storage],
+                        backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(239, 68, 68, 0.8)', 'rgba(249, 115, 22, 0.8)']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#e2e8f0' } } }
+                }
+            });
+        }
+        
+        // Load Дрони
+        async function loadDrones() {
+            try {
+                const response = await fetch(`${API_BASE}/drones/?limit=100`);
+                const data = await response.json();
+                const drones = data.results;
+                
+                const table = document.getElementById('drones-table');
+                table.innerHTML = drones.map(drone => `
+                    <tr class="table-row border-b border-slate-700">
+                        <td class="py-3 px-4">${drone.model_name}</td>
+                        <td class="py-3 px-4"><code class="text-blue-400">${drone.serial_number}</code></td>
+                        <td class="py-3 px-4">
+                            <span class="badge badge-${drone.status}">
+                                ${drone.status === 'active' ? 'Активний' : drone.status === 'repair' ? 'На ремонті' : 'На зберіганні'}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">${drone.hours_flown.toFixed(1)} год</td>
+                        <td class="py-3 px-4">${drone.owner_username}</td>
+                        <td class="py-3 px-4 flex gap-2">
+                            <button onclick="editDrone(${drone.id})" class="text-blue-400 hover:text-blue-300" title="Редагувати">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteDrone(${drone.id})" class="text-red-400 hover:text-red-300" title="Видалити">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                showNotification('Помилка завантаження дронів', 'error');
+            }
+        }
+        
+        // Load Обслуговування
+        async function loadMaintenance() {
+            try {
+                const response = await fetch(`${API_BASE}/maintenance/?limit=100`);
+                const data = await response.json();
+                const records = data.results;
+                
+                const table = document.getElementById('maintenance-table');
+                table.innerHTML = records.map(record => `
+                    <tr class="table-row border-b border-slate-700">
+                        <td class="py-3 px-4">${record.drone_serial}</td>
+                        <td class="py-3 px-4">${record.maintenance_type === 'routine' ? 'Планове' : record.maintenance_type === 'repair' ? 'Ремонт' : 'Експертиза'}</td>
+                        <td class="py-3 px-4">
+                            <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">
+                                ${record.status === 'completed' ? 'Завершено' : record.status === 'in_progress' ? 'У процесі' : 'Заплановано'}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">${new Date(record.scheduled_date).toLocaleDateString('uk-UA')}</td>
+                        <td class="py-3 px-4">${record.cost} грн</td>
+                        <td class="py-3 px-4 flex gap-2">
+                            <button onclick="editMaintenance(${record.id})" class="text-blue-400 hover:text-blue-300">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteMaintenance(${record.id})" class="text-red-400 hover:text-red-300">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                showNotification('Помилка завантаження обслуговування', 'error');
+            }
+        }
+        
+        // Load Огляди
+        async function loadInspections() {
+            try {
+                const response = await fetch(`${API_BASE}/inspections/?limit=100`);
+                const data = await response.json();
+                const inspections = data.results;
+                
+                const table = document.getElementById('inspections-table');
+                table.innerHTML = inspections.map(insp => `
+                    <tr class="table-row border-b border-slate-700">
+                        <td class="py-3 px-4">${insp.drone_serial}</td>
+                        <td class="py-3 px-4">${insp.inspector_name}</td>
+                        <td class="py-3 px-4">
+                            <div class="w-16 bg-slate-700 rounded-full h-2">
+                                <div style="width: ${insp.battery_health}%; height: 100%; background: ${insp.battery_health > 80 ? '#22c55e' : insp.battery_health > 50 ? '#f97316' : '#ef4444'}; border-radius: 9999px;"></div>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4">
+                            ${insp.motor_status === 'ok' ? '<span style="color: #22c55e;"><i class="fas fa-check"></i> OK</span>' : '<span style="color: #fca5a5;"><i class="fas fa-warning"></i></span>'}
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="badge" style="background: ${insp.result === 'passed' ? 'rgba(34, 197, 94, 0.2); color: #22c55e;' : insp.result === 'warning' ? 'rgba(249, 115, 22, 0.2); color: #f97316;' : 'rgba(239, 68, 68, 0.2); color: #ef4444;'}">
+                                ${insp.result === 'passed' ? 'Пройшов' : insp.result === 'warning' ? 'Попередження' : 'Не пройшов'}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 flex gap-2">
+                            <button onclick="editInspection(${insp.id})" class="text-blue-400 hover:text-blue-300">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteInspection(${insp.id})" class="text-red-400 hover:text-red-300">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                showNotification('Помилка завантаження оглядів', 'error');
+            }
+        }
+        
+        // === ДРОНИ ===
+        function openAddModal(type) {
+            editingId = null;
+            editingType = type;
+            document.getElementById('modal-title').textContent = 'Додати новий';
+            document.getElementById('edit-form').style.display = 'block';
+            
+            if (type === 'drones') {
+                document.getElementById('form-fields').innerHTML = `
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Модель</label>
+                            <input type="text" id="model_name" class="input-field w-full" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Серійний номер</label>
+                            <input type="text" id="serial_number" class="input-field w-full" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Статус</label>
+                            <select id="status" class="input-field w-full">
+                                <option value="active">Активний</option>
+                                <option value="repair">На ремонті</option>
+                                <option value="storage">На зберіганні</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Години льоту</label>
+                            <input type="number" id="hours_flown" class="input-field w-full" step="0.1" value="0">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Дата покупки</label>
+                            <input type="date" id="purchase_date" class="input-field w-full">
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'maintenance') {
+                document.getElementById('form-fields').innerHTML = `
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Дрон</label>
+                            <select id="drone" class="input-field w-full" required></select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Тип обслуговування</label>
+                            <select id="maintenance_type" class="input-field w-full">
+                                <option value="routine">Планове</option>
+                                <option value="repair">Ремонт</option>
+                                <option value="inspection">Експертиза</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Опис</label>
+                            <textarea id="description" class="input-field w-full" rows="3"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Дата</label>
+                            <input type="date" id="scheduled_date" class="input-field w-full">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Вартість (грн)</label>
+                            <input type="number" id="cost" class="input-field w-full" step="0.01" value="0">
+                        </div>
+                    </div>
+                `;
+                loadDroneSelect('#drone');
+            } else if (type === 'inspections') {
+                document.getElementById('form-fields').innerHTML = `
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Дрон</label>
+                            <select id="drone" class="input-field w-full" required></select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Інспектор</label>
+                            <input type="text" id="inspector_name" class="input-field w-full">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Здоров'я батареї (%)</label>
+                            <input type="number" id="battery_health" class="input-field w-full" min="0" max="100" value="100">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Статус моторів</label>
+                            <select id="motor_status" class="input-field w-full">
+                                <option value="ok">OK</option>
+                                <option value="warning">Попередження</option>
+                                <option value="failed">Не працює</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Результат</label>
+                            <select id="result" class="input-field w-full">
+                                <option value="passed">Пройшов</option>
+                                <option value="warning">Попередження</option>
+                                <option value="failed">Не пройшов</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+                loadDroneSelect('#drone');
+            }
+            
+            document.getElementById('edit-modal').classList.add('active');
+        }
+        
+        async function loadDroneSelect(selector) {
+            const response = await fetch(`${API_BASE}/drones/?limit=100`);
+            const data = await response.json();
+            const select = document.querySelector(selector);
+            select.innerHTML = data.results.map(d => `<option value="${d.id}">${d.serial_number} - ${d.model_name}</option>`).join('');
+        }
+        
+        async function editDrone(id) {
+            const response = await fetch(`${API_BASE}/drones/${id}/`);
+            const drone = await response.json();
+            editingId = id;
+            editingType = 'drones';
+            
+            document.getElementById('modal-title').textContent = 'Редагування дрона';
+            document.getElementById('form-fields').innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Модель</label>
+                        <input type="text" id="model_name" class="input-field w-full" value="${drone.model_name}">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Серійний номер</label>
+                        <input type="text" id="serial_number" class="input-field w-full" value="${drone.serial_number}">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Статус</label>
+                        <select id="status" class="input-field w-full">
+                            <option value="active" ${drone.status === 'active' ? 'selected' : ''}>Активний</option>
+                            <option value="repair" ${drone.status === 'repair' ? 'selected' : ''}>На ремонті</option>
+                            <option value="storage" ${drone.status === 'storage' ? 'selected' : ''}>На зберіганні</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Години льоту</label>
+                        <input type="number" id="hours_flown" class="input-field w-full" step="0.1" value="${drone.hours_flown}">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Дата покупки</label>
+                        <input type="date" id="purchase_date" class="input-field w-full" value="${drone.purchase_date}">
+                    </div>
+                </div>
+            `;
+            document.getElementById('edit-modal').classList.add('active');
+        }
+        
+        async function deleteDrone(id) {
+            if (!confirm('Видалити цей дрон?')) return;
+            try {
+                const response = await fetch(`${API_BASE}/drones/${id}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                if (response.ok) {
+                    showNotification('Дрон видалено!', 'success');
+                    loadDrones();
+                } else {
+                    showNotification('Помилка видалення', 'error');
+                }
+            } catch (error) {
+                showNotification('Помилка видалення', 'error');
+            }
+        }
+        
+        async function editMaintenance(id) {
+            const response = await fetch(`${API_BASE}/maintenance/${id}/`);
+            const record = await response.json();
+            editingId = id;
+            editingType = 'maintenance';
+            
+            document.getElementById('modal-title').textContent = 'Редагування обслуговування';
+            document.getElementById('form-fields').innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Дрон</label>
+                        <select id="drone" class="input-field w-full" required></select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Тип</label>
+                        <select id="maintenance_type" class="input-field w-full">
+                            <option value="routine" ${record.maintenance_type === 'routine' ? 'selected' : ''}>Планове</option>
+                            <option value="repair" ${record.maintenance_type === 'repair' ? 'selected' : ''}>Ремонт</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Статус</label>
+                        <select id="status" class="input-field w-full">
+                            <option value="scheduled" ${record.status === 'scheduled' ? 'selected' : ''}>Заплановано</option>
+                            <option value="in_progress" ${record.status === 'in_progress' ? 'selected' : ''}>У процесі</option>
+                            <option value="completed" ${record.status === 'completed' ? 'selected' : ''}>Завершено</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Дата</label>
+                        <input type="date" id="scheduled_date" class="input-field w-full" value="${record.scheduled_date}">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Вартість (грн)</label>
+                        <input type="number" id="cost" class="input-field w-full" step="0.01" value="${record.cost}">
+                    </div>
+                </div>
+            `;
+            loadDroneSelect('#drone');
+            document.getElementById('edit-modal').classList.add('active');
+        }
+        
+        async function deleteMaintenance(id) {
+            if (!confirm('Видалити це обслуговування?')) return;
+            try {
+                const response = await fetch(`${API_BASE}/maintenance/${id}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                if (response.ok) {
+                    showNotification('Обслуговування видалено!', 'success');
+                    loadMaintenance();
+                } else {
+                    showNotification('Помилка видалення', 'error');
+                }
+            } catch (error) {
+                showNotification('Помилка видалення', 'error');
+            }
+        }
+        
+        async function editInspection(id) {
+            const response = await fetch(`${API_BASE}/inspections/${id}/`);
+            const insp = await response.json();
+            editingId = id;
+            editingType = 'inspections';
+            
+            document.getElementById('modal-title').textContent = 'Редагування огляду';
+            document.getElementById('form-fields').innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Дрон</label>
+                        <select id="drone" class="input-field w-full" required></select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Інспектор</label>
+                        <input type="text" id="inspector_name" class="input-field w-full" value="${insp.inspector_name}">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Батарея (%)</label>
+                        <input type="number" id="battery_health" class="input-field w-full" min="0" max="100" value="${insp.battery_health}">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Статус моторів</label>
+                        <select id="motor_status" class="input-field w-full">
+                            <option value="ok" ${insp.motor_status === 'ok' ? 'selected' : ''}>OK</option>
+                            <option value="warning" ${insp.motor_status === 'warning' ? 'selected' : ''}>Попередження</option>
+                            <option value="failed" ${insp.motor_status === 'failed' ? 'selected' : ''}>Не працює</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Результат</label>
+                        <select id="result" class="input-field w-full">
+                            <option value="passed" ${insp.result === 'passed' ? 'selected' : ''}>Пройшов</option>
+                            <option value="warning" ${insp.result === 'warning' ? 'selected' : ''}>Попередження</option>
+                            <option value="failed" ${insp.result === 'failed' ? 'selected' : ''}>Не пройшов</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            loadDroneSelect('#drone');
+            document.getElementById('edit-modal').classList.add('active');
+        }
+        
+        async function deleteInspection(id) {
+            if (!confirm('Видалити цей огляд?')) return;
+            try {
+                const response = await fetch(`${API_BASE}/inspections/${id}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                if (response.ok) {
+                    showNotification('Огляд видалено!', 'success');
+                    loadInspections();
+                } else {
+                    showNotification('Помилка видалення', 'error');
+                }
+            } catch (error) {
+                showNotification('Помилка видалення', 'error');
+            }
+        }
+        
+        // Збереження форми
+        async function saveItem(event) {
+            event.preventDefault();
+            
+            let data = {};
+            if (editingType === 'drones') {
+                data = {
+                    model_name: document.getElementById('model_name').value,
+                    serial_number: document.getElementById('serial_number').value,
+                    status: document.getElementById('status').value,
+                    hours_flown: parseFloat(document.getElementById('hours_flown').value),
+                    purchase_date: document.getElementById('purchase_date').value || new Date().toISOString().split('T')[0]
+                };
+            } else if (editingType === 'maintenance') {
+                data = {
+                    drone: document.getElementById('drone').value,
+                    maintenance_type: document.getElementById('maintenance_type').value,
+                    description: document.getElementById('description')?.value || '',
+                    status: document.getElementById('status')?.value || 'scheduled',
+                    scheduled_date: document.getElementById('scheduled_date').value,
+                    cost: parseFloat(document.getElementById('cost').value) || 0
+                };
+            } else if (editingType === 'inspections') {
+                data = {
+                    drone: document.getElementById('drone').value,
+                    inspector_name: document.getElementById('inspector_name').value,
+                    battery_health: parseInt(document.getElementById('battery_health').value),
+                    motor_status: document.getElementById('motor_status').value,
+                    result: document.getElementById('result').value
+                };
+            }
+            
+            try {
+                const url = editingId ? `${API_BASE}/${editingType}/${editingId}/` : `${API_BASE}/${editingType}/`;
+                const method = editingId ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showNotification('Збережено успішно!', 'success');
+                    closeModal();
+                    
+                    if (editingType === 'drones') loadDrones();
+                    else if (editingType === 'maintenance') loadMaintenance();
+                    else if (editingType === 'inspections') loadInspections();
+                } else {
+                    const error = await response.json();
+                    showNotification(`Помилка: ${JSON.stringify(error)}`, 'error');
+                }
+            } catch (error) {
+                showNotification(`Помилка: ${error}`, 'error');
+            }
+        }
+        
+        // Допоміжні функції
+        function closeModal() {
+            document.getElementById('edit-modal').classList.remove('active');
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 600;
+                z-index: 2000;
+                animation: slideIn 0.3s ease;
+                background: ${type === 'success' ? '#22c55e' : '#ef4444'};
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        function generateReport(type) {
+            showNotification(`Звіт по ${type === 'drones' ? 'дронам' : 'обслуговуванню'} буде готовий за 2 сек...`, 'success');
+        }
+
+        // ============================================================
+        // АДМІНІСТРУВАННЯ: КОРИСТУВАЧІ ТА ГРУПИ
+        // ============================================================
+
+        function loadUsers() {
+            fetch('/api/users/users/', {
+                headers: { 'Authorization': 'Session ' }
+            })
+            .then(r => r.json())
+            .then(users => {
+                const table = document.getElementById('users-table');
+                table.innerHTML = users.map(u => `
+                    <tr class="table-row border-b border-slate-700 hover:bg-slate-800">
+                        <td class="py-3 px-4">${u.username}</td>
+                        <td class="py-3 px-4">${u.email || '-'}</td>
+                        <td class="py-3 px-4">
+                            <span class="badge ${u.is_active ? 'bg-green-900 text-green-400' : 'bg-red-900 text-red-400'}">
+                                ${u.is_active ? '✓ Активний' : '✗ Неактивний'}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-sm text-slate-300">${u.groups.length > 0 ? u.groups.join(', ') : '-'}</td>
+                        <td class="py-3 px-4">
+                            <button onclick="editUser(${u.id})" class="text-blue-400 hover:text-blue-300 mr-4" title="Редагувати">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteUser(${u.id})" class="text-red-400 hover:text-red-300" title="Видалити">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            })
+            .catch(e => {
+                console.error('Помилка при завантаженні користувачів:', e);
+                showNotification('Помилка завантаження користувачів', 'error');
+            });
+        }
+
+        function loadGroups() {
+            fetch('/api/users/groups/', {
+                headers: { 'Authorization': 'Session ' }
+            })
+            .then(r => r.json())
+            .then(groups => {
+                const table = document.getElementById('groups-table');
+                table.innerHTML = groups.map(g => `
+                    <tr class="table-row border-b border-slate-700 hover:bg-slate-800">
+                        <td class="py-3 px-4">${g.name}</td>
+                        <td class="py-3 px-4">
+                            <button onclick="deleteGroup(${g.id})" class="text-red-400 hover:text-red-300" title="Видалити">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            })
+            .catch(e => {
+                console.error('Помилка при завантаженні груп:', e);
+                showNotification('Помилка завантаження груп', 'error');
+            });
+        }
+
+        function deleteUser(id) {
+            if (!confirm('Видалити цього користувача?')) return;
+            fetch(`/api/users/users/${id}/`, {
+                method: 'DELETE',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') }
+            })
+            .then(r => {
+                if (r.ok) {
+                    showNotification('Користувач видалено!', 'success');
+                    loadUsers();
+                } else {
+                    showNotification('Помилка видалення користувача', 'error');
+                }
+            })
+            .catch(e => {
+                showNotification('Помилка видалення', 'error');
+                console.error(e);
+            });
+        }
+
+        function deleteGroup(id) {
+            if (!confirm('Видалити цю групу?')) return;
+            fetch(`/api/users/groups/${id}/`, {
+                method: 'DELETE',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') }
+            })
+            .then(r => {
+                if (r.ok) {
+                    showNotification('Група видалена!', 'success');
+                    loadGroups();
+                } else {
+                    showNotification('Помилка видалення групи', 'error');
+                }
+            })
+            .catch(e => {
+                showNotification('Помилка видалення', 'error');
+                console.error(e);
+            });
+        }
+
+        function openAddUserModal() {
+            editingType = 'user_add';
+            editingId = null;
+            document.getElementById('modal-title').textContent = 'Новий користувач';
+            document.getElementById('form-fields').innerHTML = `
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold mb-2">Ім'я користувача *</label>
+                    <input type="text" id="field-username" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold mb-2">Email</label>
+                    <input type="email" id="field-email" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold mb-2">Пароль *</label>
+                    <input type="password" id="field-password" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold mb-2">Статус</label>
+                    <select id="field-is_active" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white">
+                        <option value="true">Активний</option>
+                        <option value="false">Неактивний</option>
+                    </select>
+                </div>
+            `;
+            document.getElementById('edit-modal').style.display = 'flex';
+        }
+
+        function openAddGroupModal() {
+            editingType = 'group_add';
+            editingId = null;
+            document.getElementById('modal-title').textContent = 'Нова група';
+            document.getElementById('form-fields').innerHTML = `
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold mb-2">Назва групи *</label>
+                    <input type="text" id="field-name" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white" required>
+                </div>
+            `;
+            document.getElementById('edit-modal').style.display = 'flex';
+        }
+
+        function editUser(id) {
+            fetch(`/api/users/users/${id}/`)
+            .then(r => r.json())
+            .then(user => {
+                editingType = 'user_edit';
+                editingId = id;
+                document.getElementById('modal-title').textContent = `Редагування користувача: ${user.username}`;
+                document.getElementById('form-fields').innerHTML = `
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold mb-2">Ім'я користувача</label>
+                        <input type="text" id="field-username" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white" value="${user.username}" disabled>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold mb-2">Email</label>
+                        <input type="email" id="field-email" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white" value="${user.email || ''}">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold mb-2">Новий пароль (залиште пустим, щоб не змінювати)</label>
+                        <input type="password" id="field-password" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold mb-2">Статус</label>
+                        <select id="field-is_active" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white">
+                            <option value="true" ${user.is_active ? 'selected' : ''}>Активний</option>
+                            <option value="false" ${!user.is_active ? 'selected' : ''}>Неактивний</option>
+                        </select>
+                    </div>
+                `;
+                document.getElementById('edit-modal').style.display = 'flex';
+            })
+            .catch(e => {
+                showNotification('Помилка завантаження користувача', 'error');
+                console.error(e);
+            });
+        }
+
+        // Переписування saveItem для обслуговування користувачів та груп
+        const originalSaveItem = saveItem;
+        saveItem = function(event) {
+            event.preventDefault();
+            
+            if (editingType === 'user_add' || editingType === 'user_edit') {
+                saveUser();
+            } else if (editingType === 'group_add') {
+                saveGroup();
+            } else {
+                originalSaveItem.call(this, event);
+            }
+        };
+
+        function saveUser() {
+            const username = document.getElementById('field-username')?.value;
+            const email = document.getElementById('field-email')?.value;
+            const password = document.getElementById('field-password')?.value;
+            const is_active = document.getElementById('field-is_active')?.value === 'true';
+
+            const data = {
+                email: email || '',
+                is_active: is_active
+            };
+
+            if (editingType === 'user_add') {
+                data.username = username;
+                data.password = password;
+            }
+
+            if (password && editingType === 'user_edit') {
+                data.password = password;
+            }
+
+            const url = editingType === 'user_add' 
+                ? '/api/users/users/' 
+                : `/api/users/users/${editingId}/`;
+            const method = editingType === 'user_add' ? 'POST' : 'PATCH';
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(data)
+            })
+            .then(r => {
+                if (r.ok) {
+                    showNotification('Користувач збережений!', 'success');
+                    closeModal();
+                    loadUsers();
+                } else {
+                    showNotification('Помилка збереження користувача', 'error');
+                }
+            })
+            .catch(e => {
+                showNotification('Помилка збереження', 'error');
+                console.error(e);
+            });
+        }
+
+        function saveGroup() {
+            const name = document.getElementById('field-name')?.value;
+
+            fetch('/api/users/groups/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ name: name })
+            })
+            .then(r => {
+                if (r.ok) {
+                    showNotification('Група створена!', 'success');
+                    closeModal();
+                    loadGroups();
+                } else {
+                    showNotification('Помилка створення групи', 'error');
+                }
+            })
+            .catch(e => {
+                showNotification('Помилка створення', 'error');
+                console.error(e);
+            });
+        }
+
+        // Обновлення showPage для підтримки admin сторінки
+        const originalShowPage = showPage;
+        showPage = function(page) {
+            originalShowPage.call(this, page);
+            
+            if (page === 'admin') {
+                document.getElementById('page-title').textContent = 'Адміністрування';
+                document.getElementById('add-btn').style.display = 'none';
+                loadUsers();
+                loadGroups();
+            }
+        };
+        
+        // Ініціалізація
+        loadDashboard();
+    </script>
+</body>
+</html>
