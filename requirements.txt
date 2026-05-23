@@ -2,3 +2,4 @@ Django==4.2.7
 djangorestframework==3.14.0
 python-decouple==3.8
 django-filter==23.5
+django-jazzmin==3.0.4
