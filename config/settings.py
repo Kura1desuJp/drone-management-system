@@ -96,96 +96,125 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ====== Jazzmin Admin Theme ======
 JAZZMIN_SETTINGS = {
-    "site_title": "Drone Management",
-    "site_header": "Drone Management System",
-    "site_brand": "DroneMS",
+    # ── Заголовки та брендинг ──────────────────────────
+    "site_title": "DroneMS Admin",
+    "site_header": "Система управління дронами",
+    "site_brand": "✈ DroneMS",
     "site_logo": None,
     "login_logo": None,
     "site_icon": None,
-    "welcome_sign": "Ласкаво просимо до системи управління дронами",
-    "copyright": "Drone Management System",
-    "search_model": ["auth.user", "drones.drone"],
+    "welcome_sign": "Вітаємо в системі обліку та ТО дронів",
+    "copyright": "DroneMS © 2026",
+
+    # ── Глобальний пошук ───────────────────────────────
+    "search_model": ["drones.drone", "drones.maintenance", "drones.inspection", "auth.user"],
     "user_avatar": None,
 
+    # ── Верхнє меню ────────────────────────────────────
     "topmenu_links": [
-        {"name": "Головна", "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"model": "drones.drone"},
-        {"app": "drones"},
+        {"name": "Головна", "url": "admin:index"},
+        {"name": "Дрони",   "url": "admin:drones_drone_changelist",       "new_window": False},
+        {"name": "ТО",      "url": "admin:drones_maintenance_changelist", "new_window": False},
+        {"name": "Огляди",  "url": "admin:drones_inspection_changelist",  "new_window": False},
+        {"name": "SPA →",   "url": "/", "new_window": True},
     ],
 
+    # ── Меню користувача (аватар) ──────────────────────
     "usermenu_links": [
-        {"model": "auth.user"},
+        {"name": "Мій профіль", "url": "/admin/profile/", "new_window": False},
+        {"name": "SPA →", "url": "/", "new_window": True},
     ],
 
+    # ── Сайдбар ───────────────────────────────────────
     "show_sidebar": True,
     "navigation_expanded": True,
-
     "hide_apps": [],
     "hide_models": [],
 
+    # ── Порядок розділів у сайдбарі ───────────────────
     "order_with_respect_to": [
-        "auth",
         "drones",
+        "auth",
+        "users",
     ],
 
+    # ── Іконки (Font Awesome 6 Free) ──────────────────
     "icons": {
-        "auth": "fas fa-users-cog",
-        "auth.user": "fas fa-user",
-        "auth.Group": "fas fa-users",
-        "drones": "fas fa-helicopter",
-        "drones.drone": "fas fa-helicopter",
-        "drones.maintenance": "fas fa-wrench",
-        "drones.inspection": "fas fa-search",
+        "auth":                 "fas fa-shield-halved",
+        "auth.user":            "fas fa-user-circle",
+        "auth.Group":           "fas fa-users",
+        "drones":               "fas fa-helicopter",
+        "drones.drone":         "fas fa-helicopter",
+        "drones.maintenance":   "fas fa-screwdriver-wrench",
+        "drones.inspection":    "fas fa-magnifying-glass",
+        "users":                "fas fa-users-gear",
+        "users.user":           "fas fa-user",
+        "users.group":          "fas fa-users",
     },
 
-    "default_icon_parents": "fas fa-chevron-circle-right",
-    "default_icon_children": "fas fa-circle",
+    "default_icon_parents":  "fas fa-folder",
+    "default_icon_children": "fas fa-circle-dot",
 
+    # ── Форми ─────────────────────────────────────────
     "related_modal_active": True,
-
-    "custom_css": None,
-    "custom_js": None,
-    "use_google_fonts_cdn": True,
-    "show_ui_builder": False,
-
     "changeform_format": "horizontal_tabs",
     "changeform_format_overrides": {
-        "auth.user": "collapsible",
-        "auth.group": "vertical_tabs",
+        "auth.user":        "collapsible",
+        "auth.group":       "vertical_tabs",
+        "drones.drone":     "horizontal_tabs",
+        "drones.maintenance": "horizontal_tabs",
+        "drones.inspection":  "horizontal_tabs",
     },
 
+    # ── Custom CSS/JS ──────────────────────────────────
+    "custom_css": "drones/admin_custom.css",
+    "custom_js":  None,
+
+    "use_google_fonts_cdn": True,
+    "show_ui_builder": False,
     "language_chooser": False,
 }
 
 JAZZMIN_UI_TWEAKS = {
-    "navbar_small_text": False,
-    "footer_small_text": False,
-    "body_small_text": False,
-    "brand_small_text": False,
-    "brand_colour": "navbar-dark",
-    "accent": "accent-primary",
-    "navbar": "navbar-dark",
-    "no_navbar_border": False,
-    "navbar_fixed": True,
-    "layout_boxed": False,
-    "footer_fixed": False,
-    "sidebar_fixed": True,
-    "sidebar": "sidebar-dark-primary",
-    "sidebar_nav_small_text": False,
-    "sidebar_disable_expand": False,
-    "sidebar_nav_child_indent": False,
-    "sidebar_nav_compact_style": False,
+    # ── Текстові розміри ───────────────────────────────
+    "navbar_small_text":        False,
+    "footer_small_text":        True,
+    "body_small_text":          False,
+    "brand_small_text":         False,
+
+    # ── Кольорова схема ────────────────────────────────
+    "brand_colour":             "navbar-primary",
+    "accent":                   "accent-primary",
+    "navbar":                   "navbar-dark",
+    "no_navbar_border":         False,
+    "navbar_fixed":             True,
+
+    # ── Сайдбар ───────────────────────────────────────
+    "sidebar_fixed":            True,
+    "sidebar":                  "sidebar-dark-primary",
+    "sidebar_nav_small_text":   False,
+    "sidebar_disable_expand":   False,
+    "sidebar_nav_child_indent": True,
+    "sidebar_nav_compact_style": True,
     "sidebar_nav_legacy_style": False,
-    "sidebar_nav_flat_style": False,
-    "theme": "flatly",
-    "dark_mode_theme": "darkly",
+    "sidebar_nav_flat_style":   False,
+
+    # ── Лейаут ────────────────────────────────────────
+    "layout_boxed":             False,
+    "footer_fixed":             False,
+
+    # ── Тема ──────────────────────────────────────────
+    "theme":                    "flatly",
+    "dark_mode_theme":          "darkly",
+
+    # ── Кнопки ────────────────────────────────────────
     "button_classes": {
-        "primary": "btn-primary",
-        "secondary": "btn-secondary",
-        "info": "btn-info",
-        "warning": "btn-warning",
-        "danger": "btn-danger",
-        "success": "btn-success",
+        "primary":   "btn-outline-primary",
+        "secondary": "btn-outline-secondary",
+        "info":      "btn-info",
+        "warning":   "btn-warning",
+        "danger":    "btn-danger",
+        "success":   "btn-success",
     },
 }
 

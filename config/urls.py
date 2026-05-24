@@ -1,8 +1,16 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import redirect
 from drones.views import AppView
 from rest_framework.views import APIView
 from rest_framework.response import Response
+
+
+@staff_member_required
+def admin_profile_redirect(request):
+    """Redirect to the current user's admin change page."""
+    return redirect(f'/admin/auth/user/{request.user.pk}/change/')
 
 # ============================================================
 # ДОМАШНЯ СТОРІНКА API
@@ -28,7 +36,10 @@ class APIRootView(APIView):
 urlpatterns = [
     # SPA - Основна програма
     path('', AppView.as_view(), name='app'),
-    
+
+    # Profile redirect (must be before admin/ to take precedence)
+    path('admin/profile/', admin_profile_redirect, name='admin-profile'),
+
     # Адміністрація
     path('admin/', admin.site.urls),
     

@@ -9,10 +9,15 @@ class UserSerializer(serializers.ModelSerializer):
         queryset=Group.objects.all(),
         required=False,
     )
+    group_names = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active', 'groups', 'password']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name',
+                  'is_staff', 'is_active', 'groups', 'group_names', 'password']
+
+    def get_group_names(self, obj):
+        return [g.name for g in obj.groups.all()]
 
     def create(self, validated_data):
         groups = validated_data.pop('groups', [])

@@ -4,10 +4,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Drone, Maintenance, Inspection
 from .serializers import DroneSerializer, MaintenanceSerializer, InspectionSerializer
+from .permissions import DronePermission, MaintenancePermission, InspectionPermission
 
 
 # ============================================================
@@ -41,7 +41,7 @@ class DroneViewSet(viewsets.ModelViewSet):
     
     queryset = Drone.objects.all()
     serializer_class = DroneSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [DronePermission]
     
     # Фільтрування, пошук та сортування
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -97,7 +97,7 @@ class MaintenanceViewSet(viewsets.ModelViewSet):
     
     queryset = Maintenance.objects.all()
     serializer_class = MaintenanceSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [MaintenancePermission]
     
     # Фільтрування, пошук та сортування
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -148,7 +148,7 @@ class InspectionViewSet(viewsets.ModelViewSet):
     
     queryset = Inspection.objects.all()
     serializer_class = InspectionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [InspectionPermission]
     
     # Фільтрування, пошук та сортування
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]

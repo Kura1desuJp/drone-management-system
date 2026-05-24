@@ -166,6 +166,63 @@
             background: rgba(249, 115, 22, 0.2);
             color: #f97316;
         }
+
+        .badge-inactive {
+            background: rgba(148, 163, 184, 0.2);
+            color: #94a3b8;
+        }
+
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            background: transparent;
+        }
+        .action-btn:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Group checkbox chips in user modal */
+        #field-groups-container label {
+            transition: background 0.15s, border-color 0.15s;
+        }
+        #field-groups-container label:has(input:checked) {
+            border-color: rgba(59,130,246,.5) !important;
+            background: rgba(59,130,246,.15) !important;
+        }
+        #field-groups-container input[type="checkbox"] {
+            cursor: pointer;
+        }
+        .action-btn-edit {
+            color: #60a5fa;
+            border-color: rgba(96, 165, 250, 0.35);
+        }
+        .action-btn-edit:hover {
+            background: rgba(96, 165, 250, 0.15);
+        }
+        .action-btn-delete {
+            color: #f87171;
+            border-color: rgba(248, 113, 113, 0.35);
+        }
+        .action-btn-delete:hover {
+            background: rgba(248, 113, 113, 0.15);
+        }
+        .action-btn-success {
+            color: #34d399;
+            border-color: rgba(52, 211, 153, 0.35);
+        }
+        .action-btn-success:hover {
+            background: rgba(52, 211, 153, 0.15);
+        }
         
         .input-field {
             background: rgba(71, 85, 105, 0.3);
@@ -226,42 +283,58 @@
         <aside class="sidebar w-64 overflow-y-auto">
             <div class="p-6 border-b border-slate-700">
                 <h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-                    <i class="fas fa-drone"></i> DroneControl
+                    <i class="fas fa-helicopter"></i> DroneControl
                 </h1>
                 <p class="text-xs text-slate-400 mt-1">Система управління дронами</p>
             </div>
             
-            <nav class="p-4 space-y-2">
+            <nav class="p-4 space-y-1">
                 <div class="nav-item active px-4 py-3 rounded-lg" onclick="showPage('dashboard')">
                     <i class="fas fa-chart-line w-5"></i>
                     <span class="ml-3">Дашборд</span>
                 </div>
                 <div class="nav-item px-4 py-3 rounded-lg" onclick="showPage('drones')">
-                    <i class="fas fa-robot w-5"></i>
+                    <i class="fas fa-helicopter w-5"></i>
                     <span class="ml-3">Дрони</span>
                 </div>
                 <div class="nav-item px-4 py-3 rounded-lg" onclick="showPage('maintenance')">
-                    <i class="fas fa-tools w-5"></i>
+                    <i class="fas fa-screwdriver-wrench w-5"></i>
                     <span class="ml-3">Обслуговування</span>
                 </div>
                 <div class="nav-item px-4 py-3 rounded-lg" onclick="showPage('inspections')">
-                    <i class="fas fa-stethoscope w-5"></i>
+                    <i class="fas fa-magnifying-glass w-5"></i>
                     <span class="ml-3">Огляди</span>
                 </div>
                 <div class="nav-item px-4 py-3 rounded-lg" onclick="showPage('reports')">
-                    <i class="fas fa-file-pdf w-5"></i>
+                    <i class="fas fa-file-csv w-5"></i>
                     <span class="ml-3">Звіти</span>
                 </div>
                 <div class="nav-item px-4 py-3 rounded-lg" onclick="showPage('admin')">
                     <i class="fas fa-user-shield w-5"></i>
                     <span class="ml-3">Адміністрування</span>
                 </div>
+
+                <div class="border-t border-slate-700 my-2"></div>
+
+                <div class="nav-item px-4 py-3 rounded-lg" onclick="showPage('profile')">
+                    <i class="fas fa-user-circle w-5"></i>
+                    <span class="ml-3">Мій профіль</span>
+                </div>
             </nav>
             
-            <div class="p-4 border-t border-slate-700 mt-auto">
-                <div class="text-sm text-slate-400">
-                    <p class="mb-2"><i class="fas fa-user"></i> Поточний користувач</p>
-                    <p class="font-semibold">{{ user.first_name }} {{ user.last_name }}</p>
+            <!-- User card at sidebar bottom -->
+            <div class="p-3 border-t border-slate-700 mt-auto">
+                <div class="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-slate-800 transition cursor-pointer" onclick="showPage('profile')">
+                    <div id="sidebar-avatar" class="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 select-none">
+                        {% if user.first_name or user.last_name %}{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}{% else %}{{ user.username|slice:":1"|upper }}{% endif %}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p id="sidebar-fullname" class="text-sm font-semibold text-white truncate leading-tight">{{ user.get_full_name|default:user.username }}</p>
+                        <p id="sidebar-handle" class="text-xs text-slate-400 truncate leading-tight">@{{ user.username }}</p>
+                    </div>
+                    <button onclick="doLogout(event)" title="Вийти" class="text-slate-500 hover:text-red-400 transition p-1 flex-shrink-0">
+                        <i class="fas fa-right-from-bracket text-sm"></i>
+                    </button>
                 </div>
             </div>
         </aside>
@@ -272,12 +345,21 @@
             <header class="header px-8 py-4">
                 <div class="flex justify-between items-center">
                     <h1 id="page-title" class="text-3xl font-bold">Дашборд</h1>
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-3">
                         <button class="btn btn-primary px-4 py-2 rounded-lg text-sm" id="add-btn" style="display: none;">
                             <i class="fas fa-plus"></i> Додати
                         </button>
-                        <a href="/admin/" target="_blank" class="text-slate-400 hover:text-white transition">
-                            <i class="fas fa-cog text-xl"></i>
+                        <!-- User badge → profile -->
+                        <button onclick="showPage('profile')"
+                            class="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 rounded-full pl-2 pr-3 py-1.5 transition border border-slate-600">
+                            <div id="header-avatar" class="w-7 h-7 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold select-none">
+                                {% if user.first_name or user.last_name %}{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}{% else %}{{ user.username|slice:":1"|upper }}{% endif %}
+                            </div>
+                            <span id="header-username" class="text-sm text-slate-200 font-medium">{{ user.username }}</span>
+                        </button>
+                        <a href="/admin/" target="_blank" title="Адмін-панель"
+                            class="text-slate-400 hover:text-white transition w-9 h-9 flex items-center justify-center rounded-lg hover:bg-slate-700">
+                            <i class="fas fa-cog text-lg"></i>
                         </a>
                     </div>
                 </div>
@@ -390,7 +472,7 @@
                                     </thead>
                                     <tbody id="maintenance-table">
                                         <tr class="table-row">
-                                            <td colspan="5" class="text-center py-8 text-slate-400">
+                                            <td colspan="6" class="text-center py-8 text-slate-400">
                                                 <div class="loading mx-auto"></div>
                                             </td>
                                         </tr>
@@ -418,7 +500,7 @@
                                     </thead>
                                     <tbody id="inspections-table">
                                         <tr class="table-row">
-                                            <td colspan="5" class="text-center py-8 text-slate-400">
+                                            <td colspan="6" class="text-center py-8 text-slate-400">
                                                 <div class="loading mx-auto"></div>
                                             </td>
                                         </tr>
@@ -430,17 +512,233 @@
                     
                     <!-- Звіти Page -->
                     <div id="page-reports" style="display: none;" class="fade-in">
-                        <div class="card p-6 rounded-lg">
-                            <h2 class="text-2xl font-bold mb-6">Генерування звітів</h2>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <button class="btn btn-primary px-6 py-3 rounded-lg font-semibold" onclick="generateReport('drones')">
-                                    <i class="fas fa-file-csv"></i> Звіт по дронам
+                        <div class="card p-6 rounded-lg mb-6">
+                            <h2 class="text-2xl font-bold mb-2">Генерування звітів</h2>
+                            <p class="text-slate-400 text-sm mb-6">Файл CSV одразу завантажується браузером — відкрити можна в Excel або Google Sheets.</p>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <button class="btn btn-primary px-6 py-4 rounded-lg font-semibold flex flex-col items-center gap-2" onclick="generateReport('drones')">
+                                    <i class="fas fa-helicopter text-2xl"></i>
+                                    <span>Звіт по дронах</span>
+                                    <span class="text-xs opacity-70">CSV: модель, статус, льотні години...</span>
                                 </button>
-                                <button class="btn btn-primary px-6 py-3 rounded-lg font-semibold" onclick="generateReport('maintenance')">
-                                    <i class="fas fa-file-csv"></i> Звіт по обслуговуванню
+                                <button class="btn btn-primary px-6 py-4 rounded-lg font-semibold flex flex-col items-center gap-2" onclick="generateReport('maintenance')">
+                                    <i class="fas fa-wrench text-2xl"></i>
+                                    <span>Звіт по обслуговуванню</span>
+                                    <span class="text-xs opacity-70">CSV: тип, статус, вартість, дати...</span>
+                                </button>
+                                <button class="btn btn-primary px-6 py-4 rounded-lg font-semibold flex flex-col items-center gap-2" onclick="generateReport('inspections')">
+                                    <i class="fas fa-stethoscope text-2xl"></i>
+                                    <span>Звіт по оглядах</span>
+                                    <span class="text-xs opacity-70">CSV: компоненти, батарея, результат...</span>
                                 </button>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Профіль Page -->
+                    <div id="page-profile" style="display: none;" class="fade-in">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                            <!-- Avatar + Info card -->
+                            <div class="card p-6 rounded-lg flex flex-col items-center text-center">
+                                <div class="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl font-bold mb-4 select-none" id="profile-avatar-big">??</div>
+                                <h2 class="text-xl font-bold" id="profile-fullname">—</h2>
+                                <p class="text-slate-400 text-sm mt-1" id="profile-username-display">—</p>
+                                <div class="mt-4 flex flex-wrap gap-2 justify-center" id="profile-groups-display"></div>
+                                <div class="mt-6 w-full border-t border-slate-700 pt-4 space-y-2 text-left">
+                                    <div class="flex items-center gap-2 text-sm text-slate-300">
+                                        <i class="fas fa-envelope w-4 text-slate-500"></i>
+                                        <span id="profile-email-display" class="truncate">—</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-sm text-slate-300">
+                                        <i class="fas fa-shield-halved w-4 text-slate-500"></i>
+                                        <span id="profile-staff-display">—</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Edit form -->
+                            <div class="card p-6 rounded-lg lg:col-span-2">
+                                <h3 class="text-lg font-semibold mb-5 flex items-center gap-2">
+                                    <i class="fas fa-pen text-blue-400"></i> Редагувати профіль
+                                </h3>
+                                <div class="space-y-4">
+                                    <!-- Username — read only -->
+                                    <div>
+                                        <label class="block text-xs text-slate-400 mb-1 uppercase tracking-wide">Логін</label>
+                                        <div class="relative">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">@</span>
+                                            <input type="text" id="profile-username-field" class="input-field w-full pl-7 opacity-60 cursor-not-allowed" readonly>
+                                        </div>
+                                        <p class="text-xs text-slate-500 mt-1">Логін не можна змінити</p>
+                                    </div>
+                                    <!-- Name row -->
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs text-slate-400 mb-1 uppercase tracking-wide">Ім'я</label>
+                                            <input type="text" id="profile-first-name" class="input-field w-full" placeholder="Введіть ім'я">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-slate-400 mb-1 uppercase tracking-wide">Прізвище</label>
+                                            <input type="text" id="profile-last-name" class="input-field w-full" placeholder="Введіть прізвище">
+                                        </div>
+                                    </div>
+                                    <!-- Email -->
+                                    <div>
+                                        <label class="block text-xs text-slate-400 mb-1 uppercase tracking-wide">Email</label>
+                                        <input type="email" id="profile-email" class="input-field w-full" placeholder="your@email.com">
+                                    </div>
+                                    <div class="flex items-center gap-3 pt-1">
+                                        <button onclick="saveProfile()" id="save-profile-btn" class="btn btn-primary px-6 py-2 rounded-lg text-sm font-semibold">
+                                            <i class="fas fa-floppy-disk"></i> Зберегти зміни
+                                        </button>
+                                        <span id="save-profile-status" class="text-sm hidden"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Change password -->
+                                <div class="border-t border-slate-700 mt-6 pt-6">
+                                    <h4 class="text-base font-semibold mb-4 flex items-center gap-2">
+                                        <i class="fas fa-lock text-yellow-400"></i> Змінити пароль
+                                    </h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs text-slate-400 mb-1 uppercase tracking-wide">Новий пароль</label>
+                                            <input type="password" id="profile-new-password" class="input-field w-full" placeholder="Мін. 8 символів" oninput="checkPasswordMatch()">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-slate-400 mb-1 uppercase tracking-wide">Підтвердження</label>
+                                            <div class="relative">
+                                                <input type="password" id="profile-confirm-password" class="input-field w-full pr-9" placeholder="Повторіть пароль" oninput="checkPasswordMatch()">
+                                                <i id="pw-match-icon" class="fas fa-circle text-slate-600 absolute right-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3 mt-4">
+                                        <button onclick="changePassword()" id="change-pw-btn" class="action-btn" style="padding:8px 20px;font-size:0.9em;" disabled>
+                                            <i class="fas fa-key"></i> Змінити пароль
+                                        </button>
+                                        <span id="pw-hint" class="text-xs text-slate-500">Введіть однаковий пароль в обох полях</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Реєстрація нового користувача — тільки адмін -->
+                        <div id="register-user-section" style="display:none" class="mt-6">
+                            <div class="card p-6 rounded-lg">
+                                <!-- Header-toggle -->
+                                <button onclick="toggleRegisterForm()" class="w-full flex items-center justify-between group">
+                                    <h3 class="text-lg font-semibold flex items-center gap-2">
+                                        <span class="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center text-white text-sm">
+                                            <i class="fas fa-user-plus"></i>
+                                        </span>
+                                        Зареєструвати нового користувача
+                                    </h3>
+                                    <i id="register-toggle-icon" class="fas fa-chevron-down text-slate-400 transition-transform"></i>
+                                </button>
+
+                                <div id="register-form-body" class="hidden mt-6 space-y-4">
+                                    <!-- Row 1: username -->
+                                    <div>
+                                        <label class="block text-xs text-slate-400 mb-1 uppercase tracking-wide">
+                                            Логін <span class="text-red-400">*</span>
+                                        </label>
+                                        <input type="text" id="reg-username" class="input-field w-full" placeholder="username">
+                                    </div>
+
+                                    <!-- Row 2: name -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs text-slate-400 mb-1 uppercase tracking-wide">Ім'я</label>
+                                            <input type="text" id="reg-first-name" class="input-field w-full" placeholder="Іван">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-slate-400 mb-1 uppercase tracking-wide">Прізвище</label>
+                                            <input type="text" id="reg-last-name" class="input-field w-full" placeholder="Петренко">
+                                        </div>
+                                    </div>
+
+                                    <!-- Row 3: email -->
+                                    <div>
+                                        <label class="block text-xs text-slate-400 mb-1 uppercase tracking-wide">Email</label>
+                                        <input type="email" id="reg-email" class="input-field w-full" placeholder="user@drone.ua">
+                                    </div>
+
+                                    <!-- Row 4: password -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs text-slate-400 mb-1 uppercase tracking-wide">
+                                                Пароль <span class="text-red-400">*</span>
+                                            </label>
+                                            <input type="password" id="reg-password" class="input-field w-full" placeholder="Мін. 8 символів">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-slate-400 mb-1 uppercase tracking-wide">Статус</label>
+                                            <select id="reg-is-active" class="input-field w-full">
+                                                <option value="true">✓ Активний</option>
+                                                <option value="false">✗ Неактивний</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Row 5: groups -->
+                                    <div>
+                                        <label class="block text-xs text-slate-400 mb-2 uppercase tracking-wide">Групи / Ролі</label>
+                                        <div id="reg-groups-container" class="grid grid-cols-2 md:grid-cols-4 gap-2"></div>
+                                    </div>
+
+                                    <!-- Actions -->
+                                    <div class="flex items-center gap-4 pt-2 border-t border-slate-700">
+                                        <button onclick="registerNewUser()" id="reg-submit-btn"
+                                            class="btn btn-primary px-6 py-2 rounded-lg text-sm font-semibold">
+                                            <i class="fas fa-user-plus"></i> Створити акаунт
+                                        </button>
+                                        <button onclick="clearRegisterForm()"
+                                            class="text-sm text-slate-400 hover:text-white transition">
+                                            <i class="fas fa-rotate-left"></i> Очистити
+                                        </button>
+                                        <span id="reg-status" class="text-sm hidden ml-auto"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Управління доступом — тільки адмін -->
+                        <div id="manage-access-section" style="display:none" class="mt-6">
+                            <div class="card p-6 rounded-lg">
+                                <button onclick="toggleManageAccess()" class="w-full flex items-center justify-between group">
+                                    <h3 class="text-lg font-semibold flex items-center gap-2">
+                                        <span class="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-full flex items-center justify-center text-white text-sm">
+                                            <i class="fas fa-user-shield"></i>
+                                        </span>
+                                        Управління доступом користувачів
+                                    </h3>
+                                    <i id="manage-access-toggle-icon" class="fas fa-chevron-down text-slate-400 transition-transform"></i>
+                                </button>
+
+                                <div id="manage-access-body" class="hidden mt-6">
+                                    <div class="flex gap-3 mb-4">
+                                        <input type="text" id="manage-search" class="input-field flex-1"
+                                            placeholder="Пошук за логіном, іменем або email..."
+                                            oninput="loadManageUsers(this.value)">
+                                        <button onclick="loadManageUsers(document.getElementById('manage-search').value)"
+                                            class="btn btn-primary px-4 py-2 rounded-lg text-sm">
+                                            <i class="fas fa-magnifying-glass"></i>
+                                        </button>
+                                    </div>
+                                    <div id="manage-users-list">
+                                        <div class="text-slate-400 text-sm text-center py-4">
+                                            <button onclick="loadManageUsers('')" class="text-blue-400 hover:underline">
+                                                <i class="fas fa-users mr-1"></i>Показати всіх користувачів
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                     <!-- Адміністрування Page -->
@@ -538,29 +836,38 @@
             document.querySelectorAll('[id^="page-"]').forEach(el => {
                 el.style.display = 'none';
             });
-            document.getElementById(`page-${page}`).style.display = 'block';
-            
-            document.querySelectorAll('.nav-item').forEach(el => {
-                el.classList.remove('active');
-            });
-            event.target.closest('.nav-item').classList.add('active');
-            
+            const pageEl = document.getElementById(`page-${page}`);
+            if (pageEl) pageEl.style.display = 'block';
+
+            // Highlight correct nav-item robustly
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const fromEvent = typeof event !== 'undefined' && event?.target?.closest('.nav-item');
+            if (fromEvent) {
+                fromEvent.classList.add('active');
+            } else {
+                // fallback: find by onclick attribute
+                document.querySelectorAll('.nav-item').forEach(el => {
+                    if (el.getAttribute('onclick') === `showPage('${page}')`) el.classList.add('active');
+                });
+            }
+
             currentPage = page;
-            
+
             const titles = {
                 dashboard: 'Дашборд',
                 drones: 'Дрони',
                 maintenance: 'Обслуговування',
                 inspections: 'Огляди та діагностика',
                 reports: 'Звіти',
-                admin: 'Адміністрування'
+                admin: 'Адміністрування',
+                profile: 'Мій профіль',
             };
-            document.getElementById('page-title').textContent = titles[page];
-            
+            document.getElementById('page-title').textContent = titles[page] || page;
+
             const addBtn = document.getElementById('add-btn');
             addBtn.style.display = ['drones', 'maintenance', 'inspections'].includes(page) ? 'block' : 'none';
             addBtn.onclick = () => openAddModal(page);
-            
+
             if (page === 'dashboard') loadDashboard();
             else if (page === 'drones') loadDrones();
             else if (page === 'maintenance') loadMaintenance();
@@ -657,13 +964,15 @@
                         </td>
                         <td class="py-3 px-4">${drone.hours_flown.toFixed(1)} год</td>
                         <td class="py-3 px-4">${drone.owner_username}</td>
-                        <td class="py-3 px-4 flex gap-2">
-                            <button onclick="editDrone(${drone.id})" class="text-blue-400 hover:text-blue-300" title="Редагувати">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="deleteDrone(${drone.id})" class="text-red-400 hover:text-red-300" title="Видалити">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        <td class="py-3 px-4">
+                            <div class="flex gap-2">
+                                <button onclick="editDrone(${drone.id})" class="action-btn action-btn-edit" title="Редагувати">
+                                    <i class="fas fa-pen-to-square"></i> Ред.
+                                </button>
+                                <button onclick="deleteDrone(${drone.id})" class="action-btn action-btn-delete" title="Видалити">
+                                    <i class="fas fa-trash-can"></i> Вид.
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `).join('');
@@ -691,13 +1000,15 @@
                         </td>
                         <td class="py-3 px-4">${new Date(record.scheduled_date).toLocaleDateString('uk-UA')}</td>
                         <td class="py-3 px-4">${record.cost} грн</td>
-                        <td class="py-3 px-4 flex gap-2">
-                            <button onclick="editMaintenance(${record.id})" class="text-blue-400 hover:text-blue-300">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="deleteMaintenance(${record.id})" class="text-red-400 hover:text-red-300">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        <td class="py-3 px-4">
+                            <div class="flex gap-2">
+                                <button onclick="editMaintenance(${record.id})" class="action-btn action-btn-edit">
+                                    <i class="fas fa-pen-to-square"></i> Ред.
+                                </button>
+                                <button onclick="deleteMaintenance(${record.id})" class="action-btn action-btn-delete">
+                                    <i class="fas fa-trash-can"></i> Вид.
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `).join('');
@@ -731,13 +1042,15 @@
                                 ${insp.result === 'passed' ? 'Пройшов' : insp.result === 'warning' ? 'Попередження' : 'Не пройшов'}
                             </span>
                         </td>
-                        <td class="py-3 px-4 flex gap-2">
-                            <button onclick="editInspection(${insp.id})" class="text-blue-400 hover:text-blue-300">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="deleteInspection(${insp.id})" class="text-red-400 hover:text-red-300">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        <td class="py-3 px-4">
+                            <div class="flex gap-2">
+                                <button onclick="editInspection(${insp.id})" class="action-btn action-btn-edit">
+                                    <i class="fas fa-pen-to-square"></i> Ред.
+                                </button>
+                                <button onclick="deleteInspection(${insp.id})" class="action-btn action-btn-delete">
+                                    <i class="fas fa-trash-can"></i> Вид.
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `).join('');
@@ -821,19 +1134,45 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-2">Інспектор</label>
-                            <input type="text" id="inspector_name" class="input-field w-full">
+                            <input type="text" id="inspector_name" class="input-field w-full" required>
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-2">Здоров'я батареї (%)</label>
                             <input type="number" id="battery_health" class="input-field w-full" min="0" max="100" value="100">
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Статус моторів</label>
-                            <select id="motor_status" class="input-field w-full">
-                                <option value="ok">OK</option>
-                                <option value="warning">Попередження</option>
-                                <option value="failed">Не працює</option>
-                            </select>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Мотори</label>
+                                <select id="motor_status" class="input-field w-full">
+                                    <option value="ok">OK</option>
+                                    <option value="warning">Попередження</option>
+                                    <option value="failed">Несправний</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Пропелери</label>
+                                <select id="propeller_condition" class="input-field w-full">
+                                    <option value="ok">OK</option>
+                                    <option value="warning">Попередження</option>
+                                    <option value="failed">Несправний</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Камера</label>
+                                <select id="camera_status" class="input-field w-full">
+                                    <option value="ok">OK</option>
+                                    <option value="warning">Попередження</option>
+                                    <option value="failed">Несправна</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Гімбал</label>
+                                <select id="gimbal_status" class="input-field w-full">
+                                    <option value="ok">OK</option>
+                                    <option value="warning">Попередження</option>
+                                    <option value="failed">Несправний</option>
+                                </select>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-2">Результат</label>
@@ -842,6 +1181,14 @@
                                 <option value="warning">Попередження</option>
                                 <option value="failed">Не пройшов</option>
                             </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Виявлені проблеми</label>
+                            <textarea id="issues_found" class="input-field w-full" rows="2" placeholder="Опишіть знайдені проблеми..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Рекомендації</label>
+                            <textarea id="recommendations" class="input-field w-full" rows="2" placeholder="Рекомендовані дії..."></textarea>
                         </div>
                     </div>
                 `;
@@ -985,6 +1332,7 @@
             editingType = 'inspections';
             
             document.getElementById('modal-title').textContent = 'Редагування огляду';
+            const sel = (f, v) => `<option value="${f}" ${insp[f] === v ? 'selected' : ''}>${v === 'ok' ? 'OK' : v === 'warning' ? 'Попередження' : 'Несправний'}</option>`;
             document.getElementById('form-fields').innerHTML = `
                 <div class="space-y-4">
                     <div>
@@ -999,13 +1347,31 @@
                         <label class="block text-sm font-medium mb-2">Батарея (%)</label>
                         <input type="number" id="battery_health" class="input-field w-full" min="0" max="100" value="${insp.battery_health}">
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Статус моторів</label>
-                        <select id="motor_status" class="input-field w-full">
-                            <option value="ok" ${insp.motor_status === 'ok' ? 'selected' : ''}>OK</option>
-                            <option value="warning" ${insp.motor_status === 'warning' ? 'selected' : ''}>Попередження</option>
-                            <option value="failed" ${insp.motor_status === 'failed' ? 'selected' : ''}>Не працює</option>
-                        </select>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Мотори</label>
+                            <select id="motor_status" class="input-field w-full">
+                                ${['ok','warning','failed'].map(v => sel('motor_status', v)).join('')}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Пропелери</label>
+                            <select id="propeller_condition" class="input-field w-full">
+                                ${['ok','warning','failed'].map(v => sel('propeller_condition', v)).join('')}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Камера</label>
+                            <select id="camera_status" class="input-field w-full">
+                                ${['ok','warning','failed'].map(v => sel('camera_status', v)).join('')}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Гімбал</label>
+                            <select id="gimbal_status" class="input-field w-full">
+                                ${['ok','warning','failed'].map(v => sel('gimbal_status', v)).join('')}
+                            </select>
+                        </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-2">Результат</label>
@@ -1014,6 +1380,14 @@
                             <option value="warning" ${insp.result === 'warning' ? 'selected' : ''}>Попередження</option>
                             <option value="failed" ${insp.result === 'failed' ? 'selected' : ''}>Не пройшов</option>
                         </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Виявлені проблеми</label>
+                        <textarea id="issues_found" class="input-field w-full" rows="2">${insp.issues_found || ''}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Рекомендації</label>
+                        <textarea id="recommendations" class="input-field w-full" rows="2">${insp.recommendations || ''}</textarea>
                     </div>
                 </div>
             `;
@@ -1055,12 +1429,15 @@
                     purchase_date: document.getElementById('purchase_date').value || new Date().toISOString().split('T')[0]
                 };
             } else if (editingType === 'maintenance') {
+                const rawDate = document.getElementById('scheduled_date').value;
+                // DateTimeField потребує ISO datetime, а не просто дату
+                const scheduledDt = rawDate.includes('T') ? rawDate : rawDate + 'T00:00:00';
                 data = {
                     drone: document.getElementById('drone').value,
                     maintenance_type: document.getElementById('maintenance_type').value,
                     description: document.getElementById('description')?.value || '',
                     status: document.getElementById('status')?.value || 'scheduled',
-                    scheduled_date: document.getElementById('scheduled_date').value,
+                    scheduled_date: scheduledDt,
                     cost: parseFloat(document.getElementById('cost').value) || 0
                 };
             } else if (editingType === 'inspections') {
@@ -1069,7 +1446,12 @@
                     inspector_name: document.getElementById('inspector_name').value,
                     battery_health: parseInt(document.getElementById('battery_health').value),
                     motor_status: document.getElementById('motor_status').value,
-                    result: document.getElementById('result').value
+                    propeller_condition: document.getElementById('propeller_condition')?.value || 'ok',
+                    camera_status: document.getElementById('camera_status')?.value || 'ok',
+                    gimbal_status: document.getElementById('gimbal_status')?.value || 'ok',
+                    result: document.getElementById('result').value,
+                    issues_found: document.getElementById('issues_found')?.value || '',
+                    recommendations: document.getElementById('recommendations')?.value || '',
                 };
             }
             
@@ -1145,8 +1527,72 @@
             }, 3000);
         }
         
-        function generateReport(type) {
-            showNotification(`Звіт по ${type === 'drones' ? 'дронам' : 'обслуговуванню'} буде готовий за 2 сек...`, 'success');
+        async function generateReport(type) {
+            const configs = {
+                drones: {
+                    url: `${API_BASE}/drones/?limit=1000`,
+                    filename: 'звіт_дрони.csv',
+                    headers: ['Серійний номер', 'Модель', 'Статус', 'Льотні години', 'Макс. час польоту (хв)', 'Вага (г)', 'Власник', 'Дата покупки'],
+                    row: d => [
+                        d.serial_number, d.model_name,
+                        { active: 'Активний', repair: 'На ремонті', storage: 'На зберіганні', inactive: 'Неактивний' }[d.status] || d.status,
+                        d.hours_flown, d.max_flight_time, d.weight,
+                        d.owner_username, d.purchase_date,
+                    ],
+                },
+                maintenance: {
+                    url: `${API_BASE}/maintenance/?limit=1000`,
+                    filename: 'звіт_обслуговування.csv',
+                    headers: ['Дрон', 'Тип', 'Статус', 'Виконавець', 'Запланована дата', 'Вартість (грн)', 'Опис'],
+                    row: m => [
+                        m.drone_serial,
+                        { routine: 'Планове', repair: 'Ремонт', inspection: 'Експертиза', upgrade: 'Модернізація' }[m.maintenance_type] || m.maintenance_type,
+                        { scheduled: 'Заплановано', in_progress: 'У процесі', completed: 'Завершено', failed: 'Не виконане' }[m.status] || m.status,
+                        m.performed_by_username || '-',
+                        m.scheduled_date ? new Date(m.scheduled_date).toLocaleDateString('uk-UA') : '-',
+                        m.cost, m.description,
+                    ],
+                },
+                inspections: {
+                    url: `${API_BASE}/inspections/?limit=1000`,
+                    filename: 'звіт_огляди.csv',
+                    headers: ['Дрон', 'Інспектор', 'Результат', 'Батарея (%)', 'Мотор', 'Пропелер', 'Камера', 'Гімбал', 'Проблеми', 'Рекомендації'],
+                    row: i => [
+                        i.drone_serial, i.inspector_name,
+                        { passed: 'Пройшов', warning: 'Попередження', failed: 'Не пройшов' }[i.result] || i.result,
+                        i.battery_health, i.motor_status, i.propeller_condition,
+                        i.camera_status, i.gimbal_status,
+                        i.issues_found || '-', i.recommendations || '-',
+                    ],
+                },
+            };
+
+            const cfg = configs[type];
+            if (!cfg) return;
+
+            try {
+                showNotification('Формування звіту...', 'success');
+                const resp = await fetch(cfg.url);
+                if (!resp.ok) { showNotification('Помилка отримання даних', 'error'); return; }
+                const data = await resp.json();
+                const rows = data.results || data;
+
+                const escape = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+                const csvContent = '﻿' + [cfg.headers, ...rows.map(cfg.row)]
+                    .map(row => row.map(escape).join(','))
+                    .join('\n');
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = cfg.filename;
+                a.click();
+                URL.revokeObjectURL(a.href);
+                showNotification(`Завантажено: ${cfg.filename} (${rows.length} рядків)`, 'success');
+            } catch (err) {
+                showNotification('Помилка генерації звіту', 'error');
+                console.error(err);
+            }
         }
 
         // ============================================================
@@ -1154,31 +1600,42 @@
         // ============================================================
 
         function loadUsers() {
-            fetch('/api/users/users/')
+            fetch('/api/users/users/?limit=200')
             .then(r => r.json())
             .then(data => {
                 const users = data.results || data;
                 const table = document.getElementById('users-table');
-                table.innerHTML = users.map(u => `
+                if (!users.length) {
+                    table.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-slate-400">Користувачів немає</td></tr>';
+                    return;
+                }
+                table.innerHTML = users.map(u => {
+                    const names = u.group_names || [];
+                    const groupBadges = names.length
+                        ? names.map(n => `<span style="padding:2px 8px;border-radius:99px;font-size:0.75em;font-weight:600;background:rgba(59,130,246,.2);color:#93c5fd;white-space:nowrap">${n}</span>`).join(' ')
+                        : '<span class="text-slate-500 text-sm">—</span>';
+                    return `
                     <tr class="table-row border-b border-slate-700 hover:bg-slate-800">
-                        <td class="py-3 px-4">${u.username}</td>
-                        <td class="py-3 px-4">${u.email || '-'}</td>
+                        <td class="py-3 px-4 font-medium">${u.username}</td>
+                        <td class="py-3 px-4 text-slate-300">${u.email || '<span class="text-slate-500">—</span>'}</td>
                         <td class="py-3 px-4">
                             <span class="badge ${u.is_active ? 'bg-green-900 text-green-400' : 'bg-red-900 text-red-400'}">
                                 ${u.is_active ? '✓ Активний' : '✗ Неактивний'}
                             </span>
                         </td>
-                        <td class="py-3 px-4 text-sm text-slate-300">${u.groups.length > 0 ? u.groups.join(', ') : '-'}</td>
+                        <td class="py-3 px-4"><div class="flex flex-wrap gap-1">${groupBadges}</div></td>
                         <td class="py-3 px-4">
-                            <button onclick="editUser(${u.id})" class="text-blue-400 hover:text-blue-300 mr-4" title="Редагувати">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="deleteUser(${u.id})" class="text-red-400 hover:text-red-300" title="Видалити">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <div class="flex gap-2">
+                                <button onclick="editUser(${u.id})" class="action-btn action-btn-edit" title="Редагувати">
+                                    <i class="fas fa-pen-to-square"></i> Ред.
+                                </button>
+                                <button onclick="deleteUser(${u.id})" class="action-btn action-btn-delete" title="Видалити">
+                                    <i class="fas fa-trash-can"></i> Вид.
+                                </button>
+                            </div>
                         </td>
-                    </tr>
-                `).join('');
+                    </tr>`;
+                }).join('');
             })
             .catch(e => {
                 console.error('Помилка при завантаженні користувачів:', e);
@@ -1196,8 +1653,8 @@
                     <tr class="table-row border-b border-slate-700 hover:bg-slate-800">
                         <td class="py-3 px-4">${g.name}</td>
                         <td class="py-3 px-4">
-                            <button onclick="deleteGroup(${g.id})" class="text-red-400 hover:text-red-300" title="Видалити">
-                                <i class="fas fa-trash"></i>
+                            <button onclick="deleteGroup(${g.id})" class="action-btn action-btn-delete" title="Видалити">
+                                <i class="fas fa-trash-can"></i> Вид.
                             </button>
                         </td>
                     </tr>
@@ -1249,32 +1706,87 @@
             });
         }
 
+        // Shared input style for user modals
+        const _inp = 'class="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white focus:border-blue-500 focus:outline-none transition"';
+        const _lbl = (t, req) => `<label class="block text-xs text-slate-400 uppercase tracking-wide mb-1">${t}${req ? ' <span class="text-red-400">*</span>' : ''}</label>`;
+
+        async function _renderGroupCheckboxes(selectedIds = []) {
+            const container = document.getElementById('field-groups-container');
+            if (!container) return;
+            container.innerHTML = '<span class="text-slate-500 text-sm">Завантаження...</span>';
+            try {
+                const r = await fetch('/api/users/groups/?limit=100');
+                const data = await r.json();
+                const groups = data.results || data;
+                if (!groups.length) {
+                    container.innerHTML = '<span class="text-slate-500 text-sm italic">Груп немає. Спочатку створіть групи нижче.</span>';
+                    return;
+                }
+                container.innerHTML = groups.map(g => {
+                    const checked = selectedIds.includes(g.id) ? 'checked' : '';
+                    return `
+                    <label class="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer
+                        hover:bg-slate-700 transition select-none group-chip ${checked ? 'bg-slate-700' : ''}"
+                        style="border:1px solid rgba(148,163,184,.15)">
+                        <input type="checkbox" name="group_ids" value="${g.id}" ${checked}
+                            class="w-4 h-4 rounded accent-blue-500"
+                            onchange="this.closest('label').classList.toggle('bg-slate-700', this.checked)">
+                        <span class="text-sm font-medium">${g.name}</span>
+                    </label>`;
+                }).join('');
+            } catch {
+                container.innerHTML = '<span class="text-red-400 text-sm">Помилка завантаження груп</span>';
+            }
+        }
+
+        function _userFormHtml(user = null) {
+            const isEdit = !!user;
+            return `
+            <div class="space-y-4">
+                <div>
+                    ${_lbl('Логін', !isEdit)}
+                    <input type="text" id="field-username" ${_inp}
+                        value="${user?.username || ''}" ${isEdit ? 'readonly style="opacity:.6;cursor:not-allowed"' : 'placeholder="username"'}>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        ${_lbl("Ім'я")}
+                        <input type="text" id="field-first-name" ${_inp} value="${user?.first_name || ''}" placeholder="Ім'я">
+                    </div>
+                    <div>
+                        ${_lbl('Прізвище')}
+                        <input type="text" id="field-last-name" ${_inp} value="${user?.last_name || ''}" placeholder="Прізвище">
+                    </div>
+                </div>
+                <div>
+                    ${_lbl('Email')}
+                    <input type="email" id="field-email" ${_inp} value="${user?.email || ''}" placeholder="email@example.com">
+                </div>
+                <div>
+                    ${_lbl(isEdit ? 'Новий пароль (залиште пустим щоб не змінювати)' : 'Пароль', !isEdit)}
+                    <input type="password" id="field-password" ${_inp} placeholder="${isEdit ? '••••••••' : 'Мін. 8 символів'}">
+                </div>
+                <div>
+                    ${_lbl('Статус')}
+                    <select id="field-is_active" ${_inp}>
+                        <option value="true" ${!isEdit || user?.is_active ? 'selected' : ''}>✓ Активний</option>
+                        <option value="false" ${isEdit && !user?.is_active ? 'selected' : ''}>✗ Неактивний</option>
+                    </select>
+                </div>
+                <div>
+                    ${_lbl('Групи / Ролі')}
+                    <div id="field-groups-container" class="grid grid-cols-2 gap-2 mt-1"></div>
+                </div>
+            </div>`;
+        }
+
         function openAddUserModal() {
             editingType = 'user_add';
             editingId = null;
             document.getElementById('modal-title').textContent = 'Новий користувач';
-            document.getElementById('form-fields').innerHTML = `
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold mb-2">Ім'я користувача *</label>
-                    <input type="text" id="field-username" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white" required>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold mb-2">Email</label>
-                    <input type="email" id="field-email" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold mb-2">Пароль *</label>
-                    <input type="password" id="field-password" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white" required>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold mb-2">Статус</label>
-                    <select id="field-is_active" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white">
-                        <option value="true">Активний</option>
-                        <option value="false">Неактивний</option>
-                    </select>
-                </div>
-            `;
+            document.getElementById('form-fields').innerHTML = _userFormHtml(null);
             document.getElementById('edit-modal').classList.add('active');
+            _renderGroupCheckboxes([]);
         }
 
         function openAddGroupModal() {
@@ -1296,29 +1808,10 @@
             .then(user => {
                 editingType = 'user_edit';
                 editingId = id;
-                document.getElementById('modal-title').textContent = `Редагування користувача: ${user.username}`;
-                document.getElementById('form-fields').innerHTML = `
-                    <div class="mb-4">
-                        <label class="block text-sm font-semibold mb-2">Ім'я користувача</label>
-                        <input type="text" id="field-username" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white" value="${user.username}" disabled>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-semibold mb-2">Email</label>
-                        <input type="email" id="field-email" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white" value="${user.email || ''}">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-semibold mb-2">Новий пароль (залиште пустим, щоб не змінювати)</label>
-                        <input type="password" id="field-password" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-semibold mb-2">Статус</label>
-                        <select id="field-is_active" class="w-full bg-slate-800 border border-slate-600 rounded px-3 py-2 text-white">
-                            <option value="true" ${user.is_active ? 'selected' : ''}>Активний</option>
-                            <option value="false" ${!user.is_active ? 'selected' : ''}>Неактивний</option>
-                        </select>
-                    </div>
-                `;
+                document.getElementById('modal-title').textContent = `Редагування: ${user.username}`;
+                document.getElementById('form-fields').innerHTML = _userFormHtml(user);
                 document.getElementById('edit-modal').classList.add('active');
+                _renderGroupCheckboxes(user.groups || []);
             })
             .catch(e => {
                 showNotification('Помилка завантаження користувача', 'error');
@@ -1341,37 +1834,37 @@
         };
 
         function saveUser() {
-            const username = document.getElementById('field-username')?.value;
-            const email = document.getElementById('field-email')?.value;
-            const password = document.getElementById('field-password')?.value;
-            const is_active = document.getElementById('field-is_active')?.value === 'true';
+            const username   = document.getElementById('field-username')?.value?.trim();
+            const first_name = document.getElementById('field-first-name')?.value?.trim();
+            const last_name  = document.getElementById('field-last-name')?.value?.trim();
+            const email      = document.getElementById('field-email')?.value?.trim();
+            const password   = document.getElementById('field-password')?.value;
+            const is_active  = document.getElementById('field-is_active')?.value === 'true';
 
-            const data = {
-                email: email || '',
-                is_active: is_active
-            };
+            // Collect checked group IDs
+            const groupIds = Array.from(
+                document.querySelectorAll('input[name="group_ids"]:checked')
+            ).map(cb => parseInt(cb.value));
+
+            const data = { email: email || '', first_name: first_name || '', last_name: last_name || '', is_active, groups: groupIds };
 
             if (editingType === 'user_add') {
+                if (!username) { showNotification('Введіть логін', 'error'); return; }
+                if (!password) { showNotification('Введіть пароль', 'error'); return; }
                 data.username = username;
                 data.password = password;
             }
-
             if (password && editingType === 'user_edit') {
                 data.password = password;
             }
 
-            const url = editingType === 'user_add' 
-                ? '/api/users/users/' 
-                : `/api/users/users/${editingId}/`;
+            const url    = editingType === 'user_add' ? '/api/users/users/' : `/api/users/users/${editingId}/`;
             const method = editingType === 'user_add' ? 'POST' : 'PATCH';
 
             fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify(data)
+                method,
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify(data),
             })
             .then(async r => {
                 if (r.ok) {
@@ -1380,7 +1873,7 @@
                     loadUsers();
                 } else {
                     const err = await r.json().catch(() => ({}));
-                    const msg = Object.entries(err).map(([k, v]) => `${k}: ${v}`).join('; ');
+                    const msg = Object.entries(err).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`).join('; ');
                     showNotification(`Помилка: ${msg || r.status}`, 'error');
                 }
             })
@@ -1416,19 +1909,511 @@
             });
         }
 
-        // Обновлення showPage для підтримки admin сторінки
+        // Розширення showPage для admin та profile
         const originalShowPage = showPage;
         showPage = function(page) {
             originalShowPage.call(this, page);
-            
             if (page === 'admin') {
-                document.getElementById('page-title').textContent = 'Адміністрування';
                 document.getElementById('add-btn').style.display = 'none';
                 loadUsers();
                 loadGroups();
+            } else if (page === 'profile') {
+                document.getElementById('add-btn').style.display = 'none';
+                loadProfile();
             }
         };
-        
+
+        // ── ПРОФІЛЬ ────────────────────────────────────────
+
+        function _calcInitials(u) {
+            return ((u.first_name?.[0] || '') + (u.last_name?.[0] || '')).toUpperCase()
+                || (u.username?.[0] || '?').toUpperCase();
+        }
+
+        function _updateAvatarWidgets(u) {
+            const initials = _calcInitials(u);
+            const fullName = [u.first_name, u.last_name].filter(Boolean).join(' ') || u.username;
+
+            // Sidebar
+            const sa = document.getElementById('sidebar-avatar');
+            const sf = document.getElementById('sidebar-fullname');
+            const sh = document.getElementById('sidebar-handle');
+            if (sa) sa.textContent = initials;
+            if (sf) sf.textContent = fullName;
+            if (sh) sh.textContent = '@' + u.username;
+
+            // Header badge
+            const ha = document.getElementById('header-avatar');
+            const hu = document.getElementById('header-username');
+            if (ha) ha.textContent = initials;
+            if (hu) hu.textContent = u.username;
+        }
+
+        async function loadProfile() {
+            try {
+                const r = await fetch('/api/users/me/');
+                if (!r.ok) return;
+                const u = await r.json();
+
+                // Big avatar card
+                document.getElementById('profile-avatar-big').textContent = _calcInitials(u);
+                document.getElementById('profile-fullname').textContent =
+                    [u.first_name, u.last_name].filter(Boolean).join(' ') || u.username;
+                document.getElementById('profile-username-display').textContent = '@' + u.username;
+                document.getElementById('profile-email-display').textContent = u.email || '—';
+                document.getElementById('profile-staff-display').textContent =
+                    u.is_staff ? 'Адміністратор' : 'Звичайний користувач';
+
+                // Role badges
+                const names = u.group_names || [];
+                document.getElementById('profile-groups-display').innerHTML = names.length
+                    ? names.map(n => `<span style="padding:3px 12px;border-radius:99px;font-size:0.74em;font-weight:700;background:rgba(59,130,246,.18);color:#93c5fd;letter-spacing:.3px">${n}</span>`).join('')
+                    : '<span style="font-size:0.8em;color:#64748b;font-style:italic">Без ролі</span>';
+
+                // Edit form
+                document.getElementById('profile-username-field').value = u.username;
+                document.getElementById('profile-first-name').value = u.first_name || '';
+                document.getElementById('profile-last-name').value = u.last_name || '';
+                document.getElementById('profile-email').value = u.email || '';
+
+                // Sync sidebar + header
+                _updateAvatarWidgets(u);
+
+                // Admin-only sections
+                const isAdmin = u.is_staff || u.is_superuser;
+                const regSection = document.getElementById('register-user-section');
+                const manageSection = document.getElementById('manage-access-section');
+                if (isAdmin) {
+                    regSection.style.display = 'block';
+                    manageSection.style.display = 'block';
+                    _renderRegGroupCheckboxes();
+                } else {
+                    regSection.style.display = 'none';
+                    manageSection.style.display = 'none';
+                }
+            } catch (e) {
+                showNotification('Помилка завантаження профілю', 'error');
+            }
+        }
+
+        async function saveProfile() {
+            const btn = document.getElementById('save-profile-btn');
+            const status = document.getElementById('save-profile-status');
+
+            const data = {
+                first_name: document.getElementById('profile-first-name').value.trim(),
+                last_name:  document.getElementById('profile-last-name').value.trim(),
+                email:      document.getElementById('profile-email').value.trim(),
+            };
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Збереження...';
+
+            try {
+                const r = await fetch('/api/users/me/', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                    body: JSON.stringify(data),
+                });
+                if (r.ok) {
+                    const u = await r.json();
+                    status.textContent = '✓ Збережено';
+                    status.className = 'text-sm text-green-400';
+                    status.classList.remove('hidden');
+                    setTimeout(() => status.classList.add('hidden'), 3000);
+                    _updateAvatarWidgets(u);
+                    // refresh info card without full reload
+                    document.getElementById('profile-fullname').textContent =
+                        [u.first_name, u.last_name].filter(Boolean).join(' ') || u.username;
+                    document.getElementById('profile-email-display').textContent = u.email || '—';
+                    document.getElementById('profile-avatar-big').textContent = _calcInitials(u);
+                    showNotification('Профіль збережено!', 'success');
+                } else {
+                    const err = await r.json().catch(() => ({}));
+                    const msg = Object.entries(err).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`).join('; ');
+                    showNotification(`Помилка: ${msg || r.status}`, 'error');
+                }
+            } catch (e) {
+                showNotification('Помилка збереження', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Зберегти зміни';
+            }
+        }
+
+        function checkPasswordMatch() {
+            const np = document.getElementById('profile-new-password').value;
+            const cp = document.getElementById('profile-confirm-password').value;
+            const btn = document.getElementById('change-pw-btn');
+            const icon = document.getElementById('pw-match-icon');
+            const hint = document.getElementById('pw-hint');
+
+            if (!np && !cp) {
+                icon.className = 'fas fa-circle text-slate-600 absolute right-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none';
+                hint.textContent = 'Введіть однаковий пароль в обох полях';
+                btn.disabled = true;
+                return;
+            }
+            if (np.length > 0 && np.length < 8) {
+                icon.className = 'fas fa-circle-xmark text-red-400 absolute right-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none';
+                hint.textContent = 'Мінімум 8 символів';
+                btn.disabled = true;
+                return;
+            }
+            if (np && cp && np === cp) {
+                icon.className = 'fas fa-circle-check text-green-400 absolute right-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none';
+                hint.textContent = 'Паролі збігаються';
+                hint.style.color = '#4ade80';
+                btn.disabled = false;
+            } else if (cp.length > 0) {
+                icon.className = 'fas fa-circle-xmark text-red-400 absolute right-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none';
+                hint.textContent = 'Паролі не збігаються';
+                hint.style.color = '#f87171';
+                btn.disabled = true;
+            } else {
+                icon.className = 'fas fa-circle text-slate-600 absolute right-3 top-1/2 -translate-y-1/2 text-sm pointer-events-none';
+                hint.textContent = 'Повторіть пароль для підтвердження';
+                hint.style.color = '';
+                btn.disabled = true;
+            }
+        }
+
+        async function changePassword() {
+            const np = document.getElementById('profile-new-password').value;
+            const cp = document.getElementById('profile-confirm-password').value;
+            if (!np || np !== cp || np.length < 8) return;
+
+            const btn = document.getElementById('change-pw-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Зміна...';
+
+            try {
+                const r = await fetch('/api/users/me/', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                    body: JSON.stringify({ password: np }),
+                });
+                if (r.ok) {
+                    showNotification('Пароль змінено успішно!', 'success');
+                    document.getElementById('profile-new-password').value = '';
+                    document.getElementById('profile-confirm-password').value = '';
+                    checkPasswordMatch();
+                } else {
+                    const err = await r.json().catch(() => ({}));
+                    const msg = err.password ? (Array.isArray(err.password) ? err.password.join(', ') : err.password) : r.status;
+                    showNotification(`Помилка: ${msg}`, 'error');
+                }
+            } catch (e) {
+                showNotification('Помилка зміни пароля', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-key"></i> Змінити пароль';
+            }
+        }
+
+        // ── РЕЄСТРАЦІЯ НОВОГО КОРИСТУВАЧА (тільки адмін) ──
+
+        function toggleRegisterForm() {
+            const body = document.getElementById('register-form-body');
+            const icon = document.getElementById('register-toggle-icon');
+            const isHidden = body.classList.contains('hidden');
+            body.classList.toggle('hidden', !isHidden);
+            icon.style.transform = isHidden ? 'rotate(180deg)' : '';
+        }
+
+        async function _renderRegGroupCheckboxes() {
+            const container = document.getElementById('reg-groups-container');
+            if (!container) return;
+            container.innerHTML = '<span class="text-slate-500 text-sm col-span-4">Завантаження...</span>';
+            try {
+                const r = await fetch('/api/users/groups/?limit=100');
+                const data = await r.json();
+                const groups = data.results || data;
+                if (!groups.length) {
+                    container.innerHTML = '<span class="text-slate-500 text-sm italic col-span-4">Груп немає</span>';
+                    return;
+                }
+                container.innerHTML = groups.map(g => `
+                    <label class="flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer
+                        hover:bg-slate-700 transition select-none"
+                        style="border:1px solid rgba(148,163,184,.15)">
+                        <input type="checkbox" name="reg_group_ids" value="${g.id}"
+                            class="w-4 h-4 rounded accent-blue-500"
+                            onchange="this.closest('label').classList.toggle('bg-slate-700', this.checked);
+                                      this.closest('label').style.borderColor = this.checked ? 'rgba(59,130,246,.5)' : 'rgba(148,163,184,.15)'">
+                        <span class="text-sm font-medium">${g.name}</span>
+                    </label>`).join('');
+            } catch {
+                container.innerHTML = '<span class="text-red-400 text-sm col-span-4">Помилка завантаження груп</span>';
+            }
+        }
+
+        async function registerNewUser() {
+            const username   = document.getElementById('reg-username').value.trim();
+            const first_name = document.getElementById('reg-first-name').value.trim();
+            const last_name  = document.getElementById('reg-last-name').value.trim();
+            const email      = document.getElementById('reg-email').value.trim();
+            const password   = document.getElementById('reg-password').value;
+            const is_active  = document.getElementById('reg-is-active').value === 'true';
+            const groups     = Array.from(
+                document.querySelectorAll('input[name="reg_group_ids"]:checked')
+            ).map(cb => parseInt(cb.value));
+
+            if (!username) { showNotification('Введіть логін', 'error'); document.getElementById('reg-username').focus(); return; }
+            if (!password) { showNotification('Введіть пароль', 'error'); document.getElementById('reg-password').focus(); return; }
+            if (password.length < 8) { showNotification('Пароль занадто короткий (мін. 8 символів)', 'error'); return; }
+
+            const btn    = document.getElementById('reg-submit-btn');
+            const status = document.getElementById('reg-status');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Створення...';
+
+            try {
+                const r = await fetch('/api/users/users/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                    body: JSON.stringify({ username, first_name, last_name, email, password, is_active, groups }),
+                });
+
+                if (r.ok) {
+                    const u = await r.json();
+                    status.textContent = `✓ Акаунт «${u.username}» створено`;
+                    status.className = 'text-sm text-green-400';
+                    status.classList.remove('hidden');
+                    setTimeout(() => status.classList.add('hidden'), 4000);
+                    showNotification(`Користувач «${u.username}» створений!`, 'success');
+                    clearRegisterForm();
+                    // Refresh users table if admin page was visited
+                    if (currentPage === 'admin') loadUsers();
+                } else {
+                    const err = await r.json().catch(() => ({}));
+                    const msg = Object.entries(err)
+                        .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`)
+                        .join(' | ');
+                    showNotification(`Помилка: ${msg || r.status}`, 'error');
+                }
+            } catch (e) {
+                showNotification('Помилка створення користувача', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-user-plus"></i> Створити акаунт';
+            }
+        }
+
+        function clearRegisterForm() {
+            ['reg-username', 'reg-first-name', 'reg-last-name', 'reg-email', 'reg-password'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            document.getElementById('reg-is-active').value = 'true';
+            document.querySelectorAll('input[name="reg_group_ids"]').forEach(cb => {
+                cb.checked = false;
+                cb.closest('label').classList.remove('bg-slate-700');
+                cb.closest('label').style.borderColor = 'rgba(148,163,184,.15)';
+            });
+        }
+
+        // ── УПРАВЛІННЯ ДОСТУПОМ КОРИСТУВАЧІВ (тільки адмін) ──
+
+        function toggleManageAccess() {
+            const body = document.getElementById('manage-access-body');
+            const icon = document.getElementById('manage-access-toggle-icon');
+            const isHidden = body.classList.contains('hidden');
+            body.classList.toggle('hidden', !isHidden);
+            icon.style.transform = isHidden ? 'rotate(180deg)' : '';
+            if (isHidden) loadManageUsers('');
+        }
+
+        async function loadManageUsers(search) {
+            const list = document.getElementById('manage-users-list');
+            list.innerHTML = '<div class="text-slate-400 text-sm text-center py-4"><i class="fas fa-spinner fa-spin mr-2"></i>Завантаження...</div>';
+            try {
+                const qs = search ? `?search=${encodeURIComponent(search)}&limit=50` : '?limit=50';
+                const r = await fetch(`/api/users/users/${qs}`);
+                const data = await r.json();
+                const users = data.results || data;
+                if (!users.length) {
+                    list.innerHTML = '<div class="text-slate-400 text-sm text-center py-4">Користувачів не знайдено</div>';
+                    return;
+                }
+                list.innerHTML = users.map(u => {
+                    const names = u.group_names || [];
+                    const badges = names.map(n =>
+                        `<span style="padding:1px 8px;border-radius:99px;font-size:0.7em;font-weight:600;background:rgba(59,130,246,.2);color:#93c5fd">${n}</span>`
+                    ).join(' ');
+                    const staffBadge = u.is_staff
+                        ? '<span style="padding:1px 8px;border-radius:99px;font-size:0.7em;font-weight:600;background:rgba(234,179,8,.15);color:#fbbf24">Адмін</span>'
+                        : '';
+                    const activeBadge = u.is_active
+                        ? '<span style="padding:1px 8px;border-radius:99px;font-size:0.7em;font-weight:600;background:rgba(34,197,94,.15);color:#4ade80">Активний</span>'
+                        : '<span style="padding:1px 8px;border-radius:99px;font-size:0.7em;font-weight:600;background:rgba(239,68,68,.15);color:#f87171">Неактивний</span>';
+                    const displayName = u.first_name || u.last_name
+                        ? ` — ${[u.first_name, u.last_name].filter(Boolean).join(' ')}`
+                        : '';
+                    return `
+                    <div class="border border-slate-700 rounded-lg mb-2 overflow-hidden" id="ma-row-${u.id}">
+                        <div class="flex items-center justify-between px-4 py-3 hover:bg-slate-800 transition cursor-pointer"
+                            onclick="expandUserEdit(${u.id})">
+                            <div>
+                                <span class="font-medium text-sm">${u.username}${displayName}</span>
+                                <div class="flex flex-wrap gap-1 mt-1">${staffBadge}${activeBadge}${badges ? ' ' + badges : ''}</div>
+                            </div>
+                            <i class="fas fa-chevron-down text-slate-400 text-xs transition-transform" id="ma-icon-${u.id}"></i>
+                        </div>
+                        <div id="ma-edit-${u.id}" class="hidden px-4 pb-4 bg-slate-800/50 border-t border-slate-700"></div>
+                    </div>`;
+                }).join('');
+            } catch (e) {
+                list.innerHTML = '<div class="text-red-400 text-sm text-center py-4">Помилка завантаження</div>';
+            }
+        }
+
+        async function expandUserEdit(id) {
+            const editDiv = document.getElementById(`ma-edit-${id}`);
+            const icon    = document.getElementById(`ma-icon-${id}`);
+            const isHidden = editDiv.classList.contains('hidden');
+
+            // Close all open rows first
+            document.querySelectorAll('[id^="ma-edit-"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('[id^="ma-icon-"]').forEach(el => { el.style.transform = ''; });
+
+            if (!isHidden) return; // was open → toggled closed
+
+            editDiv.classList.remove('hidden');
+            icon.style.transform = 'rotate(180deg)';
+            editDiv.innerHTML = '<div class="text-slate-400 text-sm py-3"><i class="fas fa-spinner fa-spin mr-1"></i>Завантаження...</div>';
+
+            try {
+                const [userR, groupsR] = await Promise.all([
+                    fetch(`/api/users/users/${id}/`),
+                    fetch('/api/users/groups/?limit=100'),
+                ]);
+                const u      = await userR.json();
+                const gData  = await groupsR.json();
+                const groups = gData.results || gData;
+
+                const groupCheckboxes = groups.map(g => {
+                    const checked = (u.groups || []).includes(g.id);
+                    return `
+                    <label class="flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer hover:bg-slate-700 transition select-none ${checked ? 'bg-slate-700' : ''}"
+                        style="border:1px solid ${checked ? 'rgba(59,130,246,.4)' : 'rgba(148,163,184,.15)'}">
+                        <input type="checkbox" name="ma_group_${id}" value="${g.id}" ${checked ? 'checked' : ''}
+                            class="w-4 h-4 rounded accent-blue-500"
+                            onchange="this.closest('label').classList.toggle('bg-slate-700',this.checked);
+                                      this.closest('label').style.borderColor=this.checked?'rgba(59,130,246,.4)':'rgba(148,163,184,.15)'">
+                        <span class="text-sm">${g.name}</span>
+                    </label>`;
+                }).join('');
+
+                editDiv.innerHTML = `
+                <div class="pt-4 space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-3 rounded-lg" style="border:1px solid rgba(148,163,184,.15)">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm font-medium">Повний доступ (is_staff)</div>
+                                    <div class="text-xs text-slate-400 mt-0.5">Дозволяє входити в адмін-панель</div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer ml-3 shrink-0">
+                                    <input type="checkbox" id="ma-staff-${id}" ${u.is_staff ? 'checked' : ''} class="sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-600 rounded-full peer peer-checked:bg-blue-500
+                                        after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                                        after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all
+                                        peer-checked:after:translate-x-full"></div>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="p-3 rounded-lg" style="border:1px solid rgba(148,163,184,.15)">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm font-medium">Акаунт активний</div>
+                                    <div class="text-xs text-slate-400 mt-0.5">Неактивні не можуть увійти</div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer ml-3 shrink-0">
+                                    <input type="checkbox" id="ma-active-${id}" ${u.is_active ? 'checked' : ''} class="sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-600 rounded-full peer peer-checked:bg-green-500
+                                        after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                                        after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all
+                                        peer-checked:after:translate-x-full"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    ${groups.length ? `
+                    <div>
+                        <div class="text-xs text-slate-400 uppercase tracking-wide mb-2">Групи / Ролі</div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">${groupCheckboxes}</div>
+                    </div>` : ''}
+                    <div class="flex items-center gap-3 pt-2 border-t border-slate-700">
+                        <button onclick="saveUserAccess(${id})" id="ma-save-btn-${id}"
+                            class="btn btn-primary px-4 py-2 rounded-lg text-sm font-semibold">
+                            <i class="fas fa-floppy-disk"></i> Зберегти зміни
+                        </button>
+                        <span id="ma-status-${id}" class="text-sm hidden"></span>
+                    </div>
+                </div>`;
+            } catch (e) {
+                editDiv.innerHTML = '<div class="text-red-400 text-sm py-3">Помилка завантаження даних</div>';
+            }
+        }
+
+        async function saveUserAccess(id) {
+            const is_staff  = document.getElementById(`ma-staff-${id}`)?.checked ?? false;
+            const is_active = document.getElementById(`ma-active-${id}`)?.checked ?? false;
+            const groups = Array.from(
+                document.querySelectorAll(`input[name="ma_group_${id}"]:checked`)
+            ).map(cb => parseInt(cb.value));
+
+            const btn    = document.getElementById(`ma-save-btn-${id}`);
+            const status = document.getElementById(`ma-status-${id}`);
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Збереження...';
+
+            try {
+                const r = await fetch(`/api/users/users/${id}/`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                    body: JSON.stringify({ is_staff, is_active, groups }),
+                });
+                if (r.ok) {
+                    status.textContent = '✓ Збережено';
+                    status.className = 'text-sm text-green-400';
+                    status.classList.remove('hidden');
+                    setTimeout(() => {
+                        status.classList.add('hidden');
+                        // Refresh list to update badges
+                        loadManageUsers(document.getElementById('manage-search').value || '');
+                    }, 1500);
+                    showNotification('Права користувача оновлено!', 'success');
+                } else {
+                    const err = await r.json().catch(() => ({}));
+                    const msg = Object.entries(err).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`).join('; ');
+                    showNotification(`Помилка: ${msg || r.status}`, 'error');
+                    status.textContent = '✗ Помилка';
+                    status.className = 'text-sm text-red-400';
+                    status.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Зберегти зміни';
+                }
+            } catch (e) {
+                showNotification('Помилка збереження', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Зберегти зміни';
+            }
+        }
+
+        async function doLogout(e) {
+            e.stopPropagation();
+            try {
+                await fetch('/api/users/logout/', {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                });
+            } finally {
+                window.location.href = '/admin/login/?next=/';
+            }
+        }
+
         // Ініціалізація
         loadDashboard();
     </script>

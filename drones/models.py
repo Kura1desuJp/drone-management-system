@@ -124,6 +124,7 @@ class Maintenance(models.Model):
         User,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         verbose_name='Виконано',
         related_name='maintenance_performed',
         help_text='Технік хто виконав роботи'

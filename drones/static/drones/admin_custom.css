@@ -1,0 +1,584 @@
+/* ===================================================
+   DroneMS — Custom Admin Styles v2
+   Professional redesign · Jazzmin + AdminLTE
+   =================================================== */
+
+/* ══════════════════════════════════════════════════
+   1. TABLE — List view
+   ══════════════════════════════════════════════════ */
+#result_list {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+
+/* Sticky header */
+#result_list thead {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+}
+
+#result_list thead th {
+    font-size: 0.75em;
+    font-weight: 700;
+    letter-spacing: 0.65px;
+    text-transform: uppercase;
+    padding: 13px 14px;
+    white-space: nowrap;
+    border-bottom: 2px solid rgba(0, 0, 0, .12) !important;
+}
+
+#result_list tbody td {
+    padding: 11px 14px;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(0, 0, 0, .05) !important;
+    font-size: 0.92em;
+    line-height: 1.4;
+}
+
+#result_list tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+#result_list tbody tr:hover td {
+    background-color: rgba(66, 133, 244, .055) !important;
+}
+
+/* Checkbox column */
+#result_list th.action-checkbox-column,
+#result_list td.action-checkbox-column {
+    width: 32px;
+    padding-left: 16px;
+}
+
+/* ── Icons ──────────────────────────────────── */
+#result_list td i.fas,
+#result_list td i.far {
+    font-size: 1.05em;
+    vertical-align: middle;
+}
+
+/* Component icons (M P C G) */
+#result_list td span[title] i.fas {
+    font-size: 1.22em;
+    vertical-align: middle;
+}
+
+/* ── Status badges ──────────────────────────── */
+#result_list td > span[style*="border-radius:12px"] {
+    box-shadow: 0 1px 5px rgba(0, 0, 0, .22);
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+/* ── Battery progress bar ───────────────────── */
+#result_list td > div[style*="border-radius:6px"] {
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, .2);
+}
+
+
+/* ══════════════════════════════════════════════════
+   2. SEARCH BAR
+   ══════════════════════════════════════════════════ */
+#changelist-search {
+    margin-bottom: 16px;
+}
+
+/* Jazzmin wraps in .input-group */
+#changelist-search .input-group {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, .10);
+    max-width: 500px;
+}
+
+#changelist-search #searchbar {
+    border-radius: 8px 0 0 8px !important;
+    padding: 8px 14px !important;
+    font-size: 0.9em;
+    border: 1px solid rgba(0, 0, 0, .14) !important;
+    border-right: none !important;
+    height: 38px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#changelist-search #searchbar:focus {
+    box-shadow: 0 0 0 3px rgba(66, 133, 244, .18) !important;
+    border-color: rgba(66, 133, 244, .5) !important;
+    outline: none;
+}
+
+#changelist-search .input-group-append .btn,
+#changelist-search input[type="submit"] {
+    border-radius: 0 8px 8px 0 !important;
+    padding: 6px 18px !important;
+    font-weight: 600 !important;
+    font-size: 0.84em !important;
+    height: 38px;
+    letter-spacing: 0.3px;
+}
+
+
+/* ══════════════════════════════════════════════════
+   3. ACTIONS TOOLBAR
+   ══════════════════════════════════════════════════ */
+#changelist-form .actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, .04);
+    border: 1px solid rgba(0, 0, 0, .07);
+    margin-bottom: 16px;
+}
+
+#changelist-form .actions label {
+    font-size: 0.87em;
+    font-weight: 500;
+    white-space: nowrap;
+    color: #666;
+}
+
+#changelist-form .actions select {
+    border-radius: 6px !important;
+    font-size: 0.87em;
+    padding: 5px 10px;
+    height: 34px;
+    min-width: 170px;
+    border: 1px solid rgba(0, 0, 0, .18);
+    cursor: pointer;
+}
+
+#changelist-form .actions button[type="submit"] {
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    font-size: 0.84em !important;
+    padding: 5px 18px !important;
+    height: 34px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+#changelist-form .actions button[type="submit"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, .18);
+}
+
+#changelist-form .actions .action-counter {
+    font-size: 0.82em;
+    color: #888;
+    margin-left: auto;
+}
+
+
+/* ══════════════════════════════════════════════════
+   4. OBJECT TOOLS — Add / Change buttons (top right)
+   ══════════════════════════════════════════════════ */
+ul.object-tools {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 10px 0;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    float: right;
+}
+
+ul.object-tools a {
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 0.84em !important;
+    padding: 8px 20px !important;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .15);
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+ul.object-tools a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 14px rgba(0, 0, 0, .22);
+    text-decoration: none;
+}
+
+ul.object-tools a.addlink::before {
+    content: "+";
+    font-size: 1.1em;
+    font-weight: 700;
+    line-height: 1;
+}
+
+
+/* ══════════════════════════════════════════════════
+   5. FILTER SIDEBAR
+   ══════════════════════════════════════════════════ */
+#changelist-filter {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .12);
+    position: sticky;
+    top: 62px;
+}
+
+#changelist-filter h2 {
+    font-size: 0.76em !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.7px !important;
+    text-transform: uppercase;
+    padding: 13px 16px !important;
+    border-bottom: 1px solid rgba(0, 0, 0, .09);
+}
+
+#changelist-filter h3 {
+    font-size: 0.72em !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.6px !important;
+    text-transform: uppercase;
+    padding: 12px 16px 5px !important;
+    color: #888 !important;
+    margin: 0 !important;
+}
+
+#changelist-filter ul {
+    padding: 4px 0 10px;
+    margin: 0;
+    list-style: none;
+}
+
+#changelist-filter ul li a {
+    font-size: 0.88em;
+    padding: 5px 14px;
+    display: block;
+    transition: background 0.15s, color 0.15s;
+    border-radius: 5px;
+    margin: 1px 6px;
+}
+
+#changelist-filter ul li.selected a {
+    font-weight: 700;
+    border-radius: 5px;
+}
+
+#changelist-filter ul li a:hover {
+    text-decoration: none;
+    background: rgba(66, 133, 244, .1);
+}
+
+
+/* ══════════════════════════════════════════════════
+   6. FORM — Edit / Add page
+   ══════════════════════════════════════════════════ */
+fieldset.module {
+    border-radius: 10px !important;
+    overflow: hidden;
+    margin-bottom: 20px !important;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, .08);
+}
+
+fieldset.module h2 {
+    font-size: 0.76em !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.65px !important;
+    text-transform: uppercase;
+    padding: 12px 16px !important;
+}
+
+.form-row {
+    padding: 10px 2px !important;
+}
+
+.aligned label {
+    font-size: 0.9em;
+    font-weight: 600;
+}
+
+
+/* ══════════════════════════════════════════════════
+   7. SUBMIT ROW
+   ══════════════════════════════════════════════════ */
+.submit-row {
+    border-radius: 10px;
+    padding: 14px 18px !important;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.submit-row input[type="submit"],
+.submit-row a.deletelink,
+.submit-row a.closelink {
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 0.88em !important;
+    padding: 9px 22px !important;
+    letter-spacing: 0.3px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+}
+
+.submit-row a.deletelink {
+    margin-left: auto;
+}
+
+.submit-row input[type="submit"]:hover,
+.submit-row a.deletelink:hover,
+.submit-row a.closelink:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .22);
+    text-decoration: none;
+}
+
+
+/* ══════════════════════════════════════════════════
+   8. BREADCRUMB
+   ══════════════════════════════════════════════════ */
+.breadcrumb {
+    font-size: 0.83em !important;
+    padding: 5px 2px !important;
+    border-radius: 6px;
+    margin-bottom: 8px !important;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    font-size: 1.1em;
+}
+
+
+/* ══════════════════════════════════════════════════
+   9. PAGINATION
+   ══════════════════════════════════════════════════ */
+.paginator {
+    font-size: 0.88em;
+    padding: 12px 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-wrap: wrap;
+}
+
+.paginator a,
+.paginator .this-page {
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-block;
+    font-weight: 500;
+    transition: background 0.15s;
+}
+
+.paginator .this-page {
+    font-weight: 700;
+}
+
+
+/* ══════════════════════════════════════════════════
+   10. SIDEBAR NAVIGATION
+   ══════════════════════════════════════════════════ */
+.nav-sidebar .nav-item .nav-link .nav-icon {
+    width: 20px;
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+.nav-sidebar .nav-item > .nav-link {
+    border-radius: 7px;
+    margin: 2px 8px;
+    font-size: 0.92em;
+    transition: background 0.18s;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+}
+
+/* Active indicator: left border accent */
+.nav-sidebar .nav-item > .nav-link.active {
+    position: relative;
+}
+
+.nav-sidebar .nav-item > .nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 20%;
+    height: 60%;
+    width: 3px;
+    background: #74b9ff;
+    border-radius: 0 3px 3px 0;
+}
+
+
+/* ══════════════════════════════════════════════════
+   11. INLINE TABULAR
+   ══════════════════════════════════════════════════ */
+.inline-group .tabular {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.inline-group h2 {
+    font-size: 0.84em;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+}
+
+
+/* ══════════════════════════════════════════════════
+   12. DATE HIERARCHY
+   ══════════════════════════════════════════════════ */
+div.xfull ul.toplinks {
+    font-size: 0.88em;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 14px !important;
+}
+
+div.xfull ul.toplinks li {
+    display: inline-block;
+}
+
+
+/* ══════════════════════════════════════════════════
+   13. CARD HEADERS (Jazzmin)
+   ══════════════════════════════════════════════════ */
+.card {
+    border-radius: 10px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08) !important;
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+}
+
+.card-header .card-title {
+    font-size: 0.98em;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+
+/* ══════════════════════════════════════════════════
+   14. TOP NAV / HEADER
+   ══════════════════════════════════════════════════ */
+.main-header {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .18) !important;
+}
+
+.main-header .navbar {
+    padding: 6px 16px;
+}
+
+/* Brand name */
+.brand-text {
+    font-weight: 700 !important;
+    font-size: 1.05em !important;
+    letter-spacing: 0.3px;
+}
+
+
+/* ══════════════════════════════════════════════════
+   15. LOGIN PAGE
+   ══════════════════════════════════════════════════ */
+.login-page .login-box {
+    border-radius: 14px !important;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, .22) !important;
+}
+
+#login-form input[type="text"],
+#login-form input[type="password"] {
+    border-radius: 7px !important;
+    height: 42px;
+    font-size: 0.93em;
+}
+
+#login-form input[type="submit"] {
+    border-radius: 8px !important;
+    font-weight: 700 !important;
+    font-size: 0.95em !important;
+    padding: 10px 24px !important;
+    letter-spacing: 0.4px;
+    width: 100%;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+#login-form input[type="submit"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 16px rgba(0, 0, 0, .28);
+}
+
+
+/* ══════════════════════════════════════════════════
+   16. GLOBAL SEARCH RESULTS (Jazzmin search modal)
+   ══════════════════════════════════════════════════ */
+#jazzy-search .search-results .result-item {
+    border-radius: 6px;
+    transition: background 0.15s;
+}
+
+#jazzy-search input[type="search"] {
+    border-radius: 8px !important;
+    font-size: 0.95em;
+    padding: 8px 14px;
+}
+
+
+/* ══════════════════════════════════════════════════
+   17. CONTENT HEADER
+   ══════════════════════════════════════════════════ */
+.content-header {
+    padding: 10px 16px 6px !important;
+}
+
+.content-header h1 {
+    font-size: 1.4em !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.2px;
+}
+
+
+/* ══════════════════════════════════════════════════
+   18. MISC POLISH
+   ══════════════════════════════════════════════════ */
+
+/* Related-object popup links */
+.related-widget-wrapper-link {
+    border-radius: 4px;
+    transition: opacity 0.15s;
+}
+
+.related-widget-wrapper-link:hover {
+    opacity: 0.8;
+}
+
+/* Help text under fields */
+.help {
+    font-size: 0.82em;
+    margin-top: 3px;
+    opacity: 0.75;
+}
+
+/* Error messages in forms */
+.errorlist {
+    border-radius: 6px;
+    padding: 6px 12px;
+    margin-bottom: 8px;
+    list-style: none;
+}
+
+.errorlist li {
+    font-size: 0.88em;
+}
+
+/* Select2 / autocomplete if used */
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple {
+    border-radius: 6px !important;
+    min-height: 36px;
+}
